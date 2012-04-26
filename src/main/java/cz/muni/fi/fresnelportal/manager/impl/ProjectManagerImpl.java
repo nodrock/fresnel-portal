@@ -42,7 +42,7 @@ import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 public class ProjectManagerImpl implements ProjectManager {
     private static final Logger logger = Logger.getLogger(ProjectManagerImpl.class.getName());
     
-    private static final RowMapper<Project> USER_MAPPER = new RowMapper<Project>() {
+    private static final RowMapper<Project> PROJECT_MAPPER = new RowMapper<Project>() {
         @Override
         public Project mapRow(ResultSet rs, int i) throws SQLException {
             return new Project(rs.getInt("id"), rs.getString("uri"), rs.getString("name"), rs.getString("description"), rs.getString("filename"));
@@ -53,7 +53,6 @@ public class ProjectManagerImpl implements ProjectManager {
     
     @Autowired
     public void setDataSource(DataSource ds){
-        logger.log(Level.INFO, "Setting datasource.");
         jdbcTemplate = new JdbcTemplate(ds);
     }
 
@@ -147,19 +146,18 @@ public class ProjectManagerImpl implements ProjectManager {
         }
         logger.log(Level.INFO, "Finding project by id: {0}", id);
         try {
-            return jdbcTemplate.queryForObject("SELECT * FROM projects WHERE id=?", USER_MAPPER, id);
+            return jdbcTemplate.queryForObject("SELECT * FROM projects WHERE id=?", PROJECT_MAPPER, id);
         } catch (DataAccessException ex) {
             logger.log(Level.SEVERE, "Database error: {0}", ex.toString() );
             return null;
         }
-
     }
 
     @Override
     public Collection<Project> findAllProjects() {
         logger.log(Level.INFO, "Finding all projects.");
         try {
-            return jdbcTemplate.query("SELECT * FROM projects", USER_MAPPER);
+            return jdbcTemplate.query("SELECT * FROM projects", PROJECT_MAPPER);
         }catch(DataAccessException ex){
             logger.log(Level.SEVERE, "Database error: {0}", ex.toString() );
             return null;
