@@ -22,6 +22,8 @@
         </c:forEach>
         </div>    
         
+        <a href="<c:url value="services.htm"/>">Services management</a>
+        
         <table> 
             <tr>
                 <th>URI</th>

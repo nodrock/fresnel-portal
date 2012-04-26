@@ -4,8 +4,12 @@
  */
 package cz.muni.fi.fresnelportal.controllers;
 
+import com.hp.hpl.jena.rdf.model.ModelFactory;
 import cz.muni.fi.fresnelportal.manager.ProjectManager;
+import cz.muni.fi.fresnelportal.manager.ServiceManager;
 import cz.muni.fi.fresnelportal.model.Project;
+import cz.muni.fi.fresnelportal.model.Service;
+import cz.muni.fi.jfresnel.jena.semanticweb.SPARQLEndpointGraph;
 import cz.muni.fi.jfresnel.jena.semanticweb.SPARQLJenaSemWebClientEvaluator;
 import de.fuberlin.wiwiss.ng4j.semwebclient.SemanticWebClient;
 import fr.inria.jfresnel.Format;
@@ -61,6 +65,8 @@ public class FileUploadController {
     
     @Autowired
     private ProjectManager projectManager;
+    @Autowired
+    private ServiceManager serviceManager;
     
     @RequestMapping(value = "/index.htm", method = RequestMethod.GET)
     public String handleIndex(Model model) {
@@ -119,19 +125,6 @@ public class FileUploadController {
                 model.addAttribute("errors", new String[]{"File does NOT contain valid Fresnel project!"});
                 return handleIndex(model);
             }
-            
-//            InputStream inputStream = file.getInputStream();
-//            ServletOutputStream outputStream = response.getOutputStream();
-//            byte[] buf = new byte[8192];
-//            while (true) {
-//              int length = inputStream.read(buf);
-//              if (length < 0)
-//                break;
-//              outputStream.write(buf, 0, length);
-//            }
-            // store the bytes somewhere
-           //model.addAttribute("data", projectsPath + File.pathSeparator + name);
-           
        }
         
        return "redirect:index.htm";      
@@ -167,12 +160,15 @@ public class FileUploadController {
         model.addAttribute("formats", formats);
         model.addAttribute("groups", groups);  
         
+        Collection<Service> services = serviceManager.findAllServices();
+        model.addAttribute("services", services); 
+        
         return "fresnelDocument";
     }
-    
+     
     @RequestMapping(value = "/render.htm", method = RequestMethod.POST)
     public String handleFresnelDocument(@RequestParam("selectedGroup") String selectedGroup,
-                                        @RequestParam("selectedService") String selectedService, 
+                                        @RequestParam("selectedService") Integer selectedService, 
                                         Model model, HttpSession session,
                                         HttpServletRequest request, HttpServletResponse response) {
         String transformationsPath = request.getSession().getServletContext().getRealPath("/WEB-INF/transformations/");
@@ -190,52 +186,65 @@ public class FileUploadController {
         for(Lens lens : group.getLenses()){
             lensURIs.add(lens.getURI());
         }
-        
-        SemanticWebClient semWebClient = new SemanticWebClient();
-
-        com.hp.hpl.jena.rdf.model.Model semWebModel = semWebClient.asJenaModel("default");        
-        
-        FSLNSResolver nsr = new FSLNSResolver();
-        nsr.addPrefixBinding("rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#");
-        nsr.addPrefixBinding("gn", "http://www.geonames.org/ontology#");
-        nsr.addPrefixBinding("wgs84_pos", "http://www.w3.org/2003/01/geo/wgs84_pos#");
-        nsr.addPrefixBinding("foaf", "http://xmlns.com/foaf/0.1/");
-        nsr.addPrefixBinding("owl", "http://www.w3.org/2002/07/owl#");
-        nsr.addPrefixBinding("rdfs", "http://www.w3.org/2000/01/rdf-schema#");
-        nsr.addPrefixBinding("fresnel", "http://www.w3.org/2004/09/fresnel#");
-        nsr.addPrefixBinding("foafsample", "http://www.fi.muni.cz/fresnel-editor#");
-        nsr.addPrefixBinding("dbpedia", "http://dbpedia.org/resource/");
-        nsr.addPrefixBinding("yago", "http://dbpedia.org/class/yago/");
-        
-        SPARQLNSResolver snsr = new SPARQLNSResolver();
-        snsr.addPrefixBinding("rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#");
-        snsr.addPrefixBinding("gn", "http://www.geonames.org/ontology#");
-        snsr.addPrefixBinding("wgs84_pos", "http://www.w3.org/2003/01/geo/wgs84_pos#");
-        snsr.addPrefixBinding("foaf", "http://xmlns.com/foaf/0.1/");
-        snsr.addPrefixBinding("owl", "http://www.w3.org/2002/07/owl#");
-        snsr.addPrefixBinding("rdfs", "http://www.w3.org/2000/01/rdf-schema#");
-        snsr.addPrefixBinding("fresnel", "http://www.w3.org/2004/09/fresnel#");
-        snsr.addPrefixBinding("foafsample", "http://www.fi.muni.cz/fresnel-editor#");
-        snsr.addPrefixBinding("dbpedia", "http://dbpedia.org/resource/");
-        snsr.addPrefixBinding("yago", "http://dbpedia.org/class/yago/");
-          
-        FSLHierarchyStore fhs = new FSLJenaHierarchyStore();
-        
-        FSLJenaEvaluator fje = new FSLJenaEvaluator(nsr, fhs);
-        fje.setModel(semWebModel);
-        
-        SPARQLJenaSemWebClientEvaluator sje = new SPARQLJenaSemWebClientEvaluator(snsr);
-        sje.setSemanticWebClient(semWebClient);
-        
+            
+        if(selectedService == null){
+            model.addAttribute("errors", new String[]{"No service selected!"});
+            return handleIndex(model);
+        }
         
         JenaRenderer renderer = new JenaRenderer();
         Document document;
-        try {
-            document = renderer.render(fd, fje, sje, lensURIs.toArray(new String[0]));
-        } catch (ParserConfigurationException ex) {
-            logger.log(Level.SEVERE, null, ex);
-            model.addAttribute("errors", new String[]{"Problem with parsing configuration!"});
-            return handleIndex(model);
+        FSLNSResolver nsr = new FSLNSResolver();      
+        SPARQLNSResolver snsr = new SPARQLNSResolver();    
+        for(String prefix : fd.getPrefixes().keySet()){
+            nsr.addPrefixBinding(prefix, fd.getPrefixes().get(prefix));
+            snsr.addPrefixBinding(prefix, fd.getPrefixes().get(prefix));
+        }
+        FSLHierarchyStore fhs = new FSLJenaHierarchyStore();
+        
+        if(selectedService == 0){
+            // Semantic Web Client
+            SemanticWebClient semWebClient = new SemanticWebClient();
+
+            com.hp.hpl.jena.rdf.model.Model semWebModel = semWebClient.asJenaModel("default");        
+            
+            FSLJenaEvaluator fje = new FSLJenaEvaluator(nsr, fhs);
+            fje.setModel(semWebModel);
+
+            SPARQLJenaSemWebClientEvaluator sje = new SPARQLJenaSemWebClientEvaluator(snsr);
+            sje.setSemanticWebClient(semWebClient);
+
+            try {
+                document = renderer.render(fd, fje, sje, lensURIs.toArray(new String[0]));
+            } catch (ParserConfigurationException ex) {
+                logger.log(Level.SEVERE, null, ex);
+                model.addAttribute("errors", new String[]{"Problem with parsing configuration!"});
+                return handleIndex(model);
+            }
+            
+            semWebClient.close();
+        }else{
+            Service service = serviceManager.findServiceById(selectedService);
+            if(service == null){
+                model.addAttribute("errors", new String[]{"No service with this id!"});
+                return handleIndex(model);
+            }
+                      
+            SPARQLEndpointGraph seg = new SPARQLEndpointGraph(service.getUrl());
+            com.hp.hpl.jena.rdf.model.Model sparqlEndpointModel = ModelFactory.createModelForGraph(seg);
+            
+            FSLJenaEvaluator fje = new FSLJenaEvaluator(nsr, fhs);
+            fje.setModel(sparqlEndpointModel);
+            SPARQLJenaEvaluator sje = new SPARQLJenaEvaluator(snsr);
+            sje.setModel(sparqlEndpointModel);
+            
+            try {
+                document = renderer.render(fd, fje, sje, lensURIs.toArray(new String[0]));
+            } catch (ParserConfigurationException ex) {
+                logger.log(Level.SEVERE, null, ex);
+                model.addAttribute("errors", new String[]{"Problem with parsing configuration!"});
+                return handleIndex(model);
+            }
         }
         
         DOMSource source = new DOMSource(document);
@@ -244,6 +253,7 @@ public class FileUploadController {
         try {
             Transformer transformer = tFactory.newTransformer(new StreamSource(transformationFile));
             
+            response.setContentType("text/html;charset=UTF-8");
             transformer.transform(source, new StreamResult(response.getOutputStream())); 
         } catch (TransformerConfigurationException ex) {
             logger.log(Level.SEVERE, null, ex);
@@ -257,9 +267,7 @@ public class FileUploadController {
             logger.log(Level.SEVERE, null, ex);
             model.addAttribute("errors", new String[]{"Problem with writing transformed document to output!"});
             return handleIndex(model);
-        }
-        
-        semWebClient.close();
+        }     
         
         return null;
     }

@@ -25,5 +25,8 @@
           class="cz.muni.fi.fresnelportal.manager.impl.ProjectManagerImpl"
           p:dataSource-ref="dataSource" />
              
-    
+ 
+    <bean id="serviceManager" 
+          class="cz.muni.fi.fresnelportal.manager.impl.ServiceManagerImpl"
+          p:dataSource-ref="dataSource" />
 </beans>

@@ -83,9 +83,9 @@
                         <td>Select service:</td>
                         <td>
                             <select name="selectedService">
-                                <option value="semwebclient" label="Semantic Web Client" />
-                                <c:forEach items="${groups}" var="group">
-                                    <option value="${group.URI}" label="${group.URI}" />
+                                <option value="0" label="Semantic Web Client" />
+                                <c:forEach items="${services}" var="service">
+                                    <option value="${service.id}" label="${service.name}" />
                                 </c:forEach>
                             </select>
                         </td>
