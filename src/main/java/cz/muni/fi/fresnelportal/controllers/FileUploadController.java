@@ -6,6 +6,7 @@ package cz.muni.fi.fresnelportal.controllers;
 
 import cz.muni.fi.fresnelportal.manager.ProjectManager;
 import cz.muni.fi.fresnelportal.model.Project;
+import cz.muni.fi.jfresnel.jena.semanticweb.SPARQLJenaSemWebClientEvaluator;
 import de.fuberlin.wiwiss.ng4j.semwebclient.SemanticWebClient;
 import fr.inria.jfresnel.Format;
 import fr.inria.jfresnel.FresnelDocument;
@@ -16,6 +17,7 @@ import fr.inria.jfresnel.fsl.FSLNSResolver;
 import fr.inria.jfresnel.fsl.jena.FSLJenaEvaluator;
 import fr.inria.jfresnel.fsl.jena.FSLJenaHierarchyStore;
 import fr.inria.jfresnel.jena.JenaRenderer;
+import fr.inria.jfresnel.sparql.SPARQLEvaluator;
 import fr.inria.jfresnel.sparql.SPARQLNSResolver;
 import fr.inria.jfresnel.sparql.jena.SPARQLJenaEvaluator;
 import java.io.File;
@@ -222,7 +224,7 @@ public class FileUploadController {
         FSLJenaEvaluator fje = new FSLJenaEvaluator(nsr, fhs);
         fje.setModel(semWebModel);
         
-        SPARQLJenaEvaluator sje = new SPARQLJenaEvaluator(snsr);
+        SPARQLJenaSemWebClientEvaluator sje = new SPARQLJenaSemWebClientEvaluator(snsr);
         sje.setSemanticWebClient(semWebClient);
         
         
