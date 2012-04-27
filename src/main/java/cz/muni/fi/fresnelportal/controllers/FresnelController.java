@@ -27,10 +27,12 @@ import fr.inria.jfresnel.sparql.SPARQLEvaluator;
 import fr.inria.jfresnel.sparql.SPARQLNSResolver;
 import fr.inria.jfresnel.sparql.jena.SPARQLJenaEvaluator;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -48,6 +50,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
+import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -82,7 +85,7 @@ public class FresnelController {
     }
     
     @RequestMapping(value = "/upload.htm", method = RequestMethod.POST)
-    public String handleDocumentUpload(@RequestParam("file") MultipartFile file, HttpServletRequest request, Model model) {
+    public String handleProjectUpload(@RequestParam("file") MultipartFile file, HttpServletRequest request, Model model) {
         if(file.isEmpty()){
             model.addAttribute("errors", new String[]{"No file to upload!"});
             return "index";
@@ -316,6 +319,40 @@ public class FresnelController {
             return handleIndex(model);
         }     
         
+        return null;
+    }
+    
+    @RequestMapping(value = "/download.htm", method = RequestMethod.GET)
+    public String handleProjectDownload(@RequestParam("id") Integer projectId, Model model, HttpSession session,
+                                        HttpServletRequest request, HttpServletResponse response) {
+        if(projectId == null){
+            model.addAttribute("errors", new String[]{"No project id!"});
+            return handleIndex(model);
+        }
+        Project project = projectManager.findProjectById(projectId);
+        if(project == null){
+            model.addAttribute("errors", new String[]{"No project with this id exist!"});
+            return handleIndex(model);
+        }
+        
+        String projectsPath = request.getSession().getServletContext().getRealPath("/WEB-INF/projects/");
+        File file = new File(projectsPath + File.separatorChar + project.getFilename());
+        try {
+            response.setContentType("text/n3;charset=UTF-8");
+            response.setHeader("Content-Disposition", "attachment; filename=\""+ project.getFilename() +"\"");
+            InputStream is = new FileInputStream(file);
+            OutputStream out = response.getOutputStream();
+            IOUtils.copy(is, out);
+        } catch (FileNotFoundException ex) {
+            logger.log(Level.SEVERE, null, ex);
+            model.addAttribute("errors", new String[]{"Problem with opening input file!"});
+            return handleIndex(model);
+        } catch (IOException ex){
+            logger.log(Level.SEVERE, null, ex);
+            model.addAttribute("errors", new String[]{"Problem with writing to output!"});
+            return handleIndex(model);
+        }
+     
         return null;
     }
 }
