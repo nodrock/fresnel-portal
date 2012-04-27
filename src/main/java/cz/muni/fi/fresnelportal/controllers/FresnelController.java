@@ -342,7 +342,9 @@ public class FresnelController {
             response.setHeader("Content-Disposition", "attachment; filename=\""+ project.getFilename() +"\"");
             InputStream is = new FileInputStream(file);
             OutputStream out = response.getOutputStream();
-            IOUtils.copy(is, out);
+            IOUtils.copy(is, out);      
+            is.close();
+            out.close();
         } catch (FileNotFoundException ex) {
             logger.log(Level.SEVERE, null, ex);
             model.addAttribute("errors", new String[]{"Problem with opening input file!"});
