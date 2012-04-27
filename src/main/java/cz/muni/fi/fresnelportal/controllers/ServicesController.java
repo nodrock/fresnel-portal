@@ -7,6 +7,7 @@ package cz.muni.fi.fresnelportal.controllers;
 import cz.muni.fi.fresnelportal.manager.ServiceManager;
 import cz.muni.fi.fresnelportal.model.Service;
 import java.util.Collection;
+import java.util.logging.Logger;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +25,7 @@ import org.springframework.web.bind.annotation.SessionAttributes;
  */
 @Controller
 public class ServicesController {
+    private static final Logger logger = Logger.getLogger(ServicesController.class.getName());
     
     @Autowired
     private ServiceManager serviceManager;

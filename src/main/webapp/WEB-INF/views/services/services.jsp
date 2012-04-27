@@ -9,7 +9,8 @@
     <c:forEach items="${errors}" var="error">
         <p><c:out value="${error}" /></p>
     </c:forEach>
-</div>    
+</div>  
+<a href="<c:url value="/index.htm"/>">Back</a>
 <table> 
     <tr>               
         <th>Name</th>

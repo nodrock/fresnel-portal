@@ -10,6 +10,7 @@
 </div>    
 
 <a href="<c:url value="services/services.htm"/>">Services management</a>
+<a href="<c:url value="transformations/transformations.htm"/>">Transformations management</a>
 
 <table> 
     <tr>

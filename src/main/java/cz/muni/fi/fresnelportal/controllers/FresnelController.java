@@ -7,8 +7,10 @@ package cz.muni.fi.fresnelportal.controllers;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import cz.muni.fi.fresnelportal.manager.ProjectManager;
 import cz.muni.fi.fresnelportal.manager.ServiceManager;
+import cz.muni.fi.fresnelportal.manager.TransformationManager;
 import cz.muni.fi.fresnelportal.model.Project;
 import cz.muni.fi.fresnelportal.model.Service;
+import cz.muni.fi.fresnelportal.model.Transformation;
 import cz.muni.fi.jfresnel.jena.semanticweb.SPARQLEndpointGraph;
 import cz.muni.fi.jfresnel.jena.semanticweb.SPARQLJenaSemWebClientEvaluator;
 import de.fuberlin.wiwiss.ng4j.semwebclient.SemanticWebClient;
@@ -67,6 +69,8 @@ public class FresnelController {
     private ProjectManager projectManager;
     @Autowired
     private ServiceManager serviceManager;
+    @Autowired
+    private TransformationManager transformationManager;
     
     @RequestMapping(value = "/index.htm", method = RequestMethod.GET)
     public String handleIndex(Model model) {
@@ -78,7 +82,7 @@ public class FresnelController {
     }
     
     @RequestMapping(value = "/upload.htm", method = RequestMethod.POST)
-    public String handleFormUpload(@RequestParam("file") MultipartFile file, HttpServletRequest request, Model model) {
+    public String handleDocumentUpload(@RequestParam("file") MultipartFile file, HttpServletRequest request, Model model) {
         if(file.isEmpty()){
             model.addAttribute("errors", new String[]{"No file to upload!"});
             return "index";
@@ -100,6 +104,12 @@ public class FresnelController {
             
             // create new name in projects folder
             File saveFile = new File(projectsPath + File.separatorChar + name);
+            int i = 0;
+            while(saveFile.exists()){
+                i++;
+                saveFile = new File(projectsPath + File.separatorChar + i + f.getName());
+                name = i + f.getName();
+            }
             
             // writes file to projects folder
             FileOutputStream fos;
@@ -128,6 +138,28 @@ public class FresnelController {
        }
         
        return "redirect:index.htm";      
+    }
+    
+    @RequestMapping(value = "/delete.htm", method = RequestMethod.GET)
+    public String handleProjectDelete(@RequestParam("id") Integer projectId, Model model, HttpServletRequest request) {
+        if(projectId == null){
+            model.addAttribute("errors", new String[]{"No project id!"});
+            return handleIndex(model);
+        }
+        Project project = projectManager.findProjectById(projectId);
+        if(project == null){
+            model.addAttribute("errors", new String[]{"No project with this id exist!"});
+            return handleIndex(model);
+        }
+        
+        String projectsPath = request.getSession().getServletContext().getRealPath("/WEB-INF/projects/");
+        File file = new File(projectsPath + File.separatorChar + project.getFilename());
+        file.delete();
+        if(!file.exists()){
+            projectManager.deleteProject(project);
+        }
+     
+        return "redirect:/index.htm";
     }
     
     @RequestMapping(value = "/fresnelDocument.htm", method = RequestMethod.GET)
@@ -163,6 +195,9 @@ public class FresnelController {
         Collection<Service> services = serviceManager.findAllServices();
         model.addAttribute("services", services); 
         
+        Collection<Transformation> transformations = transformationManager.findAllTransformations();
+        model.addAttribute("transformations", transformations); 
+        
         return "fresnelDocument";
     }
      
@@ -173,7 +208,6 @@ public class FresnelController {
                                         Model model, HttpSession session,
                                         HttpServletRequest request, HttpServletResponse response) {
         String transformationsPath = request.getSession().getServletContext().getRealPath("/WEB-INF/transformations/");
-        File transformationFile = new File(transformationsPath + File.separator + "fresnel-to-xhtml-default.xsl");
         
         FresnelDocument fd;
         Object attribute = session.getAttribute("fresnelDocument");
@@ -257,8 +291,14 @@ public class FresnelController {
                 transformer = tFactory.newTransformer();
                 response.setContentType("text/xml;charset=UTF-8");
             }else{
-                //TODO:
+                Transformation trans = transformationManager.findTransformationById(selectedTransformation);
+                if(trans == null){
+                    model.addAttribute("errors", new String[]{"No transformation with this id!"});
+                    return handleIndex(model);
+                }
+                File transformationFile = new File(transformationsPath + File.separator + trans.getFilename());
                 transformer = tFactory.newTransformer(new StreamSource(transformationFile));
+                response.setContentType(trans.getContentType());
             }
             
             transformer.transform(source, new StreamResult(response.getOutputStream())); 
