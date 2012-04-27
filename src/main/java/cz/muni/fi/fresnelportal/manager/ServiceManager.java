@@ -13,6 +13,7 @@ import java.util.Collection;
  */
 public interface ServiceManager {
     public Service createService(Service service);
+    public Service updateUser(Service service);
     public boolean deleteService(Service service);
     public Service findServiceById(int id);
     public Collection<Service> findAllServices();

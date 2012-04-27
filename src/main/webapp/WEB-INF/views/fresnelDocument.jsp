@@ -5,7 +5,7 @@
 --%>
 
 <%@include file="header.jsp" %>
-<h1>Hello World!</h1>
+<h1><c:out value="${project.name}" /></h1>
 <p>Found: <c:out value="${fn:length(lenses)}" /> lenses, <c:out value="${fn:length(formats)}" /> formats, <c:out value="${fn:length(groups)}" /> groups</p>
 
 <h2>Lenses:</h2>
@@ -84,7 +84,7 @@
                 <td>Transformation:</td>
                 <td>
                     <select name="selectedTransformation">
-                        <option value="xhtml" label="XHTML" />
+                        <option value="0" label="No transformation" />
                         <c:forEach items="${groups}" var="group">
                             <option value="${group.URI}" label="${group.URI}" />
                         </c:forEach>

@@ -169,6 +169,7 @@ public class FileUploadController {
     @RequestMapping(value = "/render.htm", method = RequestMethod.POST)
     public String handleFresnelDocument(@RequestParam("selectedGroup") String selectedGroup,
                                         @RequestParam("selectedService") Integer selectedService, 
+                                        @RequestParam("selectedTransformation") Integer selectedTransformation,
                                         Model model, HttpSession session,
                                         HttpServletRequest request, HttpServletResponse response) {
         String transformationsPath = request.getSession().getServletContext().getRealPath("/WEB-INF/transformations/");
@@ -251,9 +252,15 @@ public class FileUploadController {
 
         TransformerFactory tFactory = TransformerFactory.newInstance();
         try {
-            Transformer transformer = tFactory.newTransformer(new StreamSource(transformationFile));
+            Transformer transformer = null;
+            if(selectedTransformation == 0){
+                transformer = tFactory.newTransformer();
+                response.setContentType("text/xml;charset=UTF-8");
+            }else{
+                //TODO:
+                transformer = tFactory.newTransformer(new StreamSource(transformationFile));
+            }
             
-            response.setContentType("text/html;charset=UTF-8");
             transformer.transform(source, new StreamResult(response.getOutputStream())); 
         } catch (TransformerConfigurationException ex) {
             logger.log(Level.SEVERE, null, ex);

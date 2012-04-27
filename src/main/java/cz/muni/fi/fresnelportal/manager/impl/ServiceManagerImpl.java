@@ -44,7 +44,7 @@ public class ServiceManagerImpl implements ServiceManager {
     @Override
     public Service createService(Service service) {
         if (service == null) {
-            throw new IllegalArgumentException("project");
+            throw new IllegalArgumentException("service");
         }
         logger.log(Level.INFO, "Creating service: {0}", service.toString());
         SimpleJdbcInsert insert = new SimpleJdbcInsert(jdbcTemplate).withTableName("services").usingGeneratedKeyColumns("id");
@@ -55,6 +55,21 @@ public class ServiceManagerImpl implements ServiceManager {
         Number id = insert.executeAndReturnKey(parameters);
         service.setId(id.intValue());
         
+        return service;
+    }
+    
+    @Override
+    public Service updateUser(Service service) {
+        if (service == null) {
+            throw new IllegalArgumentException("service");
+        }
+        logger.log(Level.INFO, "Updating user: {0}", service.toString());
+        try{
+            jdbcTemplate.update("UPDATE services SET name=?, url=? WHERE id=?", service.getName(), service.getUrl(), service.getId());
+        }catch(DataAccessException ex){
+            logger.log(Level.SEVERE, "Database error: {0}", ex.toString() );
+            return null;
+        }
         return service;
     }
 
