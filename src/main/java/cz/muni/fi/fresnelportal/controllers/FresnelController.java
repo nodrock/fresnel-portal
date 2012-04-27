@@ -60,8 +60,8 @@ import org.w3c.dom.Document;
  * @author nodrock
  */
 @Controller
-public class FileUploadController {
-    private static final Logger logger = Logger.getLogger(FileUploadController.class.getName());
+public class FresnelController {
+    private static final Logger logger = Logger.getLogger(FresnelController.class.getName());
     
     @Autowired
     private ProjectManager projectManager;
