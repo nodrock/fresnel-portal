@@ -29,4 +29,8 @@
     <bean id="serviceManager" 
           class="cz.muni.fi.fresnelportal.manager.impl.ServiceManagerImpl"
           p:dataSource-ref="dataSource" />
+          
+    <bean id="transformationManager" 
+          class="cz.muni.fi.fresnelportal.manager.impl.TransformationManagerImpl"
+          p:dataSource-ref="dataSource" />
 </beans>
