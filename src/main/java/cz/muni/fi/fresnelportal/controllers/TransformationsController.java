@@ -4,19 +4,25 @@
  */
 package cz.muni.fi.fresnelportal.controllers;
 
+import cz.muni.fi.fresnelportal.data.Message;
 import cz.muni.fi.fresnelportal.manager.TransformationManager;
 import cz.muni.fi.fresnelportal.model.Transformation;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.MissingServletRequestParameterException;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -34,8 +40,32 @@ public class TransformationsController {
     @Autowired
     private TransformationManager transformationManager;
     
+    private void prepareModel(Model model, HttpSession session){
+        model.addAttribute("currentPage", "transformations_management");
+        model.addAttribute("messages", session.getAttribute("messages"));
+        session.removeAttribute("messages");
+    }
+    
+    private void addMessage(HttpSession session, Message msg){
+        List<Message> messages = (List<Message>) session.getAttribute("messages");
+        if(messages == null){
+            messages = new ArrayList<Message>();
+            session.setAttribute("messages", messages);
+        }
+        messages.add(msg);
+    }
+    
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    public String handleMissingServletRequestParameterException(MissingServletRequestParameterException ex, HttpServletRequest request, HttpSession session) {    
+        addMessage(session, new Message(Message.ERROR, ex.getMessage()));
+            
+        return "redirect:/transformations/transformations.htm";
+    }
+    
     @RequestMapping(value = "/transformations/transformations.htm", method = RequestMethod.GET)
-    public String handleTransformationsIndex(Model model) {
+    public String handleTransformationsIndex(Model model, HttpSession session) {
+        prepareModel(model, session);
+        
         Collection<Transformation> transformations = transformationManager.findAllTransformations();
         model.addAttribute("transformations", transformations);
         
@@ -43,7 +73,9 @@ public class TransformationsController {
     }
     
     @RequestMapping(value = "/transformations/editTransformation.htm", method = RequestMethod.GET)
-    public String handleTransformationEdit(@RequestParam(value="id", required=false) Integer transformationId, Model model) {
+    public String handleTransformationEdit(@RequestParam(value="id", required=false) Integer transformationId, Model model, HttpSession session) {
+        prepareModel(model, session);
+        
         if(transformationId == null){
             model.addAttribute("service", new Transformation());
             model.addAttribute("mode", "create");
@@ -62,15 +94,12 @@ public class TransformationsController {
     }
     
     @RequestMapping(value = "/transformations/deleteTransformation.htm", method = RequestMethod.GET)
-    public String handleServiceDelete(@RequestParam("id") Integer transformationId, Model model, HttpServletRequest request) {
-        if(transformationId == null){
-            model.addAttribute("errors", new String[]{"No transformation id!"});
-            return handleTransformationsIndex(model);
-        }
+    public String handleTransformationDelete(@RequestParam("id") Integer transformationId, Model model, HttpServletRequest request, HttpSession session) {
+        
         Transformation transformation = transformationManager.findTransformationById(transformationId);
         if(transformation == null){
-            model.addAttribute("errors", new String[]{"No transformation with this id exist!"});
-            return handleTransformationsIndex(model);
+            addMessage(session, new Message(Message.ERROR, "No transformation with this id exist!"));
+            return "redirect:/transformations/transformations.htm";   
         }
         
         String transformationsPath = request.getSession().getServletContext().getRealPath("/WEB-INF/transformations/");
@@ -84,14 +113,15 @@ public class TransformationsController {
     }
     
     @RequestMapping(value = "/transformations/saveTransformation.htm", method = RequestMethod.POST)
-    public String handleServiceSave(@ModelAttribute("service") Transformation transformation, 
-                                    Model model, HttpServletRequest request, 
+    public String handleTransformationSave(@ModelAttribute("service") Transformation transformation, 
+                                    Model model, HttpServletRequest request, HttpSession session, 
                                     @RequestParam(value="file", required=false) MultipartFile file) {
         String transformationsPath = request.getSession().getServletContext().getRealPath("/WEB-INF/transformations/");
         
         if(transformation == null){
-            model.addAttribute("errors", new String[]{"No transformation!"});
-            return handleTransformationsIndex(model);
+            model.addAttribute("errors", new String[]{});
+            addMessage(session, new Message(Message.ERROR, "No transformation!"));
+            return "redirect:/transformations/transformations.htm";   
         }
         if(transformation.getId() == null){
             if (!file.isEmpty()) {
@@ -100,8 +130,8 @@ public class TransformationsController {
                     bytes = file.getBytes();
                 } catch (IOException ex) {
                     logger.log(Level.SEVERE, null, ex);
-                    model.addAttribute("errors", new String[]{"Problem with uploaded file!"});
-                    return handleTransformationsIndex(model);
+                    addMessage(session, new Message(Message.ERROR, "Problem with uploaded file!"));
+                    return "redirect:/transformations/transformations.htm";   
                 }
                 // gets name of original file
                 File f = new File(file.getOriginalFilename());
@@ -124,12 +154,12 @@ public class TransformationsController {
                     fos.close();
                 } catch (FileNotFoundException ex) {
                     logger.log(Level.SEVERE, null, ex);
-                    model.addAttribute("errors", new String[]{"Can't open output file on server!"});
-                    return handleTransformationsIndex(model);
+                    addMessage(session, new Message(Message.ERROR, "Can't open output file on server!"));
+                    return "redirect:/transformations/transformations.htm";   
                 } catch (IOException ex) {
                     logger.log(Level.SEVERE, null, ex);
-                    model.addAttribute("errors", new String[]{"Can't write to output file on server!"});
-                    return handleTransformationsIndex(model);
+                    addMessage(session, new Message(Message.ERROR, "Can't write to output file on server!"));
+                    return "redirect:/transformations/transformations.htm";   
                 }
 
 
@@ -137,8 +167,8 @@ public class TransformationsController {
                 Transformation trans = transformationManager.createTransformation(new Transformation(null, transformation.getName(), name, transformation.getContentType()));
                 if (trans == null) {
                     saveFile.delete();
-                    model.addAttribute("errors", new String[]{"Can't create transformation!"});
-                    return handleTransformationsIndex(model);
+                    addMessage(session, new Message(Message.ERROR, "Can't create transformation!"));
+                    return "redirect:/transformations/transformations.htm";  
                 }
             }
             

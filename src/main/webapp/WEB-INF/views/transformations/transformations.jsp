@@ -4,18 +4,12 @@
     Author     : nodrock
 --%>
 <%@include file="../header.jsp" %>
-<h1>Services</h1>
-<div class="errors">
-    <c:forEach items="${errors}" var="error">
-        <p><c:out value="${error}" /></p>
-    </c:forEach>
-</div>    
-<a href="<c:url value="/index.htm"/>">Back</a>
 <table> 
     <tr>               
         <th>Name</th>
         <th>Filename</th>
         <th>ContentType</th>  
+        <th></th> 
         <th></th> 
     </tr>         
 <c:forEach items="${transformations}" var="transformation">
@@ -34,5 +28,5 @@
     </tr>
 </c:forEach>
 </table>
-<a href="<c:url value="editTransformation.htm"/>"><img src="<c:url value="/resources/images/page_white_add.png"/>" /> Add transformation</a>
+<a href="<c:url value="editTransformation.htm"/>" class="button green"><small class="icon plus"></small><span>Add transformation</span></a>
 <%@include file="../footer.jsp" %>

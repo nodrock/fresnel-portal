@@ -5,6 +5,7 @@
 package cz.muni.fi.fresnelportal.controllers;
 
 import com.hp.hpl.jena.rdf.model.ModelFactory;
+import cz.muni.fi.fresnelportal.data.Message;
 import cz.muni.fi.fresnelportal.manager.ProjectManager;
 import cz.muni.fi.fresnelportal.manager.ServiceManager;
 import cz.muni.fi.fresnelportal.manager.TransformationManager;
@@ -38,6 +39,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.mail.Session;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -53,7 +55,10 @@ import javax.xml.transform.stream.StreamSource;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.ExtendedModelMap;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.MissingServletRequestParameterException;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -75,17 +80,41 @@ public class FresnelController {
     @Autowired
     private TransformationManager transformationManager;
     
+    private void prepareModel(Model model, HttpSession session){
+        model.addAttribute("currentPage", "fresnel_projects");
+        model.addAttribute("messages", session.getAttribute("messages"));
+        session.removeAttribute("messages");
+    }
+    
+    private void addMessage(HttpSession session, Message msg){
+        List<Message> messages = (List<Message>) session.getAttribute("messages");
+        if(messages == null){
+            messages = new ArrayList<Message>();
+            session.setAttribute("messages", messages);
+        }
+        messages.add(msg);
+    }
+    
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    public String handleMissingServletRequestParameterException(MissingServletRequestParameterException ex, HttpServletRequest request, HttpSession session) {    
+        addMessage(session, new Message(Message.ERROR, ex.getMessage()));
+            
+        return "redirect:/index.htm";
+    }
+    
     @RequestMapping(value = "/index.htm", method = RequestMethod.GET)
-    public String handleIndex(Model model) {
+    public String handleIndex(Model model, HttpSession session) {        
+        prepareModel(model, session);
+        
         Collection<Project> projects = projectManager.findAllProjects();
             
         model.addAttribute("projects", projects);
-              
+        
         return "index";
     }
     
     @RequestMapping(value = "/upload.htm", method = RequestMethod.POST)
-    public String handleProjectUpload(@RequestParam("file") MultipartFile file, HttpServletRequest request, Model model) {
+    public String handleProjectUpload(@RequestParam("file") MultipartFile file, HttpServletRequest request, Model model, HttpSession session) {    
         if(file.isEmpty()){
             model.addAttribute("errors", new String[]{"No file to upload!"});
             return "index";
@@ -98,8 +127,8 @@ public class FresnelController {
                 bytes = file.getBytes();
             } catch (IOException ex) {
                 logger.log(Level.SEVERE, null, ex);
-                model.addAttribute("errors", new String[]{"Problem with uploaded file!"});
-                return handleIndex(model);
+                addMessage(session, new Message(Message.ERROR, "Problem with uploaded file!"));
+                return "redirect:/index.htm";               
             }
             // gets name of original file
             File f = new File(file.getOriginalFilename());
@@ -122,12 +151,12 @@ public class FresnelController {
                 fos.close();
             } catch (FileNotFoundException ex) {
                 logger.log(Level.SEVERE, null, ex);
-                model.addAttribute("errors", new String[]{"Can't open output file on server!"});
-                return handleIndex(model);
+                addMessage(session, new Message(Message.ERROR, "Can't open output file on server!"));
+                return "redirect:/index.htm";  
             } catch (IOException ex){
                 logger.log(Level.SEVERE, null, ex);
-                model.addAttribute("errors", new String[]{"Can't write to output file on server!"});
-                return handleIndex(model);
+                addMessage(session, new Message(Message.ERROR, "Can't write to output file on server!"));
+                return "redirect:/index.htm"; 
             }
             
                
@@ -135,8 +164,8 @@ public class FresnelController {
             Project project = projectManager.createProject(saveFile);
             if(project == null){
                 saveFile.delete();
-                model.addAttribute("errors", new String[]{"File does NOT contain valid Fresnel project!"});
-                return handleIndex(model);
+                addMessage(session, new Message(Message.ERROR, "File does NOT contain valid Fresnel project!"));
+                return "redirect:/index.htm"; 
             }
        }
         
@@ -144,15 +173,11 @@ public class FresnelController {
     }
     
     @RequestMapping(value = "/delete.htm", method = RequestMethod.GET)
-    public String handleProjectDelete(@RequestParam("id") Integer projectId, Model model, HttpServletRequest request) {
-        if(projectId == null){
-            model.addAttribute("errors", new String[]{"No project id!"});
-            return handleIndex(model);
-        }
+    public String handleProjectDelete(@RequestParam("id") Integer projectId, Model model, HttpServletRequest request, HttpSession session) {       
         Project project = projectManager.findProjectById(projectId);
         if(project == null){
-            model.addAttribute("errors", new String[]{"No project with this id exist!"});
-            return handleIndex(model);
+            addMessage(session, new Message(Message.ERROR, "No project with this id exist!"));
+            return "redirect:/index.htm"; 
         }
         
         String projectsPath = request.getSession().getServletContext().getRealPath("/WEB-INF/projects/");
@@ -167,21 +192,19 @@ public class FresnelController {
     
     @RequestMapping(value = "/fresnelDocument.htm", method = RequestMethod.GET)
     public String handleFresnelDocument(@RequestParam("id") Integer id, Model model, HttpServletRequest request, HttpSession session) {
-        if(id == null){
-            model.addAttribute("errors", new String[]{"No id specified!"});
-            return handleIndex(model);
-        }
+        prepareModel(model, session);
+        
         Project project = projectManager.findProjectById(id);
         if(project == null){
-            model.addAttribute("errors", new String[]{"No document with this id!"});
-            return handleIndex(model);
+            addMessage(session, new Message(Message.ERROR, "No document with this id!"));
+            return "redirect:/index.htm"; 
         }
         
         String projectsPath = request.getSession().getServletContext().getRealPath("/WEB-INF/projects/");
         FresnelDocument fresnelDocument = project.getFresnelDocument(projectsPath);
         if(fresnelDocument == null){
-            model.addAttribute("errors", new String[]{"No fresnel data!"});
-            return handleIndex(model);
+            addMessage(session, new Message(Message.ERROR, "No fresnel data!"));
+            return "redirect:/index.htm"; 
         }
         
         session.setAttribute("fresnelDocument", fresnelDocument);
@@ -209,26 +232,21 @@ public class FresnelController {
                                         @RequestParam("selectedService") Integer selectedService, 
                                         @RequestParam("selectedTransformation") Integer selectedTransformation,
                                         Model model, HttpSession session,
-                                        HttpServletRequest request, HttpServletResponse response) {
+                                        HttpServletRequest request, HttpServletResponse response) {        
         String transformationsPath = request.getSession().getServletContext().getRealPath("/WEB-INF/transformations/");
         
         FresnelDocument fd;
         Object attribute = session.getAttribute("fresnelDocument");
         if(attribute == null){
-            model.addAttribute("errors", new String[]{"No document in session!"});
-            return handleIndex(model);
+            addMessage(session, new Message(Message.ERROR, "No document in session!"));
+            return "redirect:/index.htm"; 
         }
         fd = (FresnelDocument) attribute;
         Group group = fd.getGroup(selectedGroup);
         List<String> lensURIs = new ArrayList<String>();
         for(Lens lens : group.getLenses()){
             lensURIs.add(lens.getURI());
-        }
-            
-        if(selectedService == null){
-            model.addAttribute("errors", new String[]{"No service selected!"});
-            return handleIndex(model);
-        }
+        }          
         
         JenaRenderer renderer = new JenaRenderer();
         Document document;
@@ -256,16 +274,16 @@ public class FresnelController {
                 document = renderer.render(fd, fje, sje, lensURIs.toArray(new String[0]));
             } catch (ParserConfigurationException ex) {
                 logger.log(Level.SEVERE, null, ex);
-                model.addAttribute("errors", new String[]{"Problem with parsing configuration!"});
-                return handleIndex(model);
+                addMessage(session, new Message(Message.ERROR, "Problem with parsing configuration!"));
+                return "redirect:/index.htm"; 
             }
             
             semWebClient.close();
         }else{
             Service service = serviceManager.findServiceById(selectedService);
             if(service == null){
-                model.addAttribute("errors", new String[]{"No service with this id!"});
-                return handleIndex(model);
+                addMessage(session, new Message(Message.ERROR, "No service with this id!"));
+                return "redirect:/index.htm"; 
             }
                       
             SPARQLEndpointGraph seg = new SPARQLEndpointGraph(service.getUrl());
@@ -280,8 +298,8 @@ public class FresnelController {
                 document = renderer.render(fd, fje, sje, lensURIs.toArray(new String[0]));
             } catch (ParserConfigurationException ex) {
                 logger.log(Level.SEVERE, null, ex);
-                model.addAttribute("errors", new String[]{"Problem with parsing configuration!"});
-                return handleIndex(model);
+                addMessage(session, new Message(Message.ERROR, "Problem with parsing configuration!"));
+                return "redirect:/index.htm"; 
             }
         }
         
@@ -296,8 +314,8 @@ public class FresnelController {
             }else{
                 Transformation trans = transformationManager.findTransformationById(selectedTransformation);
                 if(trans == null){
-                    model.addAttribute("errors", new String[]{"No transformation with this id!"});
-                    return handleIndex(model);
+                    addMessage(session, new Message(Message.ERROR, "No transformation with this id!"));
+                    return "redirect:/index.htm"; 
                 }
                 File transformationFile = new File(transformationsPath + File.separator + trans.getFilename());
                 transformer = tFactory.newTransformer(new StreamSource(transformationFile));
@@ -307,16 +325,16 @@ public class FresnelController {
             transformer.transform(source, new StreamResult(response.getOutputStream())); 
         } catch (TransformerConfigurationException ex) {
             logger.log(Level.SEVERE, null, ex);
-            model.addAttribute("errors", new String[]{"Problem with transforming document!"});
-            return handleIndex(model);
+            addMessage(session, new Message(Message.ERROR, "Problem with transforming document!"));
+            return "redirect:/index.htm"; 
         } catch (TransformerException ex){
             logger.log(Level.SEVERE, null, ex);
-            model.addAttribute("errors", new String[]{"Problem with transforming document!"});
-            return handleIndex(model);
+            addMessage(session, new Message(Message.ERROR, "Problem with transforming document!"));
+            return "redirect:/index.htm"; 
         } catch (IOException ex){
             logger.log(Level.SEVERE, null, ex);
-            model.addAttribute("errors", new String[]{"Problem with writing transformed document to output!"});
-            return handleIndex(model);
+            addMessage(session, new Message(Message.ERROR, "Problem with writing transformed document to output!"));
+            return "redirect:/index.htm"; 
         }     
         
         return null;
@@ -324,15 +342,11 @@ public class FresnelController {
     
     @RequestMapping(value = "/download.htm", method = RequestMethod.GET)
     public String handleProjectDownload(@RequestParam("id") Integer projectId, Model model, HttpSession session,
-                                        HttpServletRequest request, HttpServletResponse response) {
-        if(projectId == null){
-            model.addAttribute("errors", new String[]{"No project id!"});
-            return handleIndex(model);
-        }
+                                        HttpServletRequest request, HttpServletResponse response) {      
         Project project = projectManager.findProjectById(projectId);
         if(project == null){
-            model.addAttribute("errors", new String[]{"No project with this id exist!"});
-            return handleIndex(model);
+            addMessage(session, new Message(Message.ERROR, "No project with this id exist!"));
+            return "redirect:/index.htm"; 
         }
         
         String projectsPath = request.getSession().getServletContext().getRealPath("/WEB-INF/projects/");
@@ -347,12 +361,12 @@ public class FresnelController {
             out.close();
         } catch (FileNotFoundException ex) {
             logger.log(Level.SEVERE, null, ex);
-            model.addAttribute("errors", new String[]{"Problem with opening input file!"});
-            return handleIndex(model);
+            addMessage(session, new Message(Message.ERROR, "Problem with opening input file!"));
+            return "redirect:/index.htm"; 
         } catch (IOException ex){
             logger.log(Level.SEVERE, null, ex);
-            model.addAttribute("errors", new String[]{"Problem with writing to output!"});
-            return handleIndex(model);
+            addMessage(session, new Message(Message.ERROR, "Problem with writing to output!"));
+            return "redirect:/index.htm"; 
         }
      
         return null;

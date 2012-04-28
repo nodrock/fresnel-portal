@@ -13,12 +13,13 @@
        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd">
 
     <mvc:annotation-driven />
+    <mvc:resources mapping="/resources/**" location="/resources/" />
     <context:component-scan base-package="cz.muni.fi.fresnelportal.controllers" />
 
     <bean class="org.springframework.web.servlet.mvc.support.ControllerClassNameHandlerMapping"/>
     
     <bean class="org.springframework.web.servlet.mvc.SimpleControllerHandlerAdapter"/>
-    
+        
     <!--
     Most controllers will use the ControllerClassNameHandlerMapping above, but
     for the index controller we are using ParameterizableViewController, so we must

@@ -1,16 +1,7 @@
 <%@include file="header.jsp" %>
 <h1><fmt:message key="fresnel_portal"/></h1>
 
-<%@include file="uploadFile.jsp" %>
-
-<div class="errors">
-    <c:forEach items="${errors}" var="error">
-        <p><c:out value="${error}" /></p>
-    </c:forEach>
-</div>    
-
-<a href="<c:url value="services/services.htm"/>">Services management</a>
-<a href="<c:url value="transformations/transformations.htm"/>">Transformations management</a>
+<%@include file="uploadFile.jsp" %>   
 
 <table> 
     <tr>

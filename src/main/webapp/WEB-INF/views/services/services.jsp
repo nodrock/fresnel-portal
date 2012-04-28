@@ -3,18 +3,12 @@
     Created on : Apr 26, 2012, 7:55:43 PM
     Author     : nodrock
 --%>
-<%@include file="../header.jsp" %>
-<h1>Services</h1>
-<div class="errors">
-    <c:forEach items="${errors}" var="error">
-        <p><c:out value="${error}" /></p>
-    </c:forEach>
-</div>  
-<a href="<c:url value="/index.htm"/>">Back</a>
+<%@include file="../header.jsp" %> 
 <table> 
     <tr>               
         <th>Name</th>
         <th>URL</th>  
+        <th></th> 
         <th></th> 
     </tr>         
 <c:forEach items="${services}" var="service">
@@ -32,5 +26,5 @@
     </tr>
 </c:forEach>
 </table>
-<a href="<c:url value="editService.htm"/>"><img src="<c:url value="/resources/images/page_white_add.png"/>" /> Add service</a>
+<a href="<c:url value="editService.htm"/>" class="button green"><small class="icon plus"></small><span>Add service</span></a>
 <%@include file="../footer.jsp" %>

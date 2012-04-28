@@ -171,7 +171,8 @@ text-align:left;
 }
 
 #submenu .title {
-width:180px;
+/*width:180px; nodrock*/
+width:250px;
 line-height:49px;
 left:50%;
 margin-left:-90px;
