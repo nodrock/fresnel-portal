@@ -10,7 +10,6 @@
         <th>Filename</th>
         <th>ContentType</th>  
         <th></th> 
-        <th></th> 
     </tr>         
 <c:forEach items="${transformations}" var="transformation">
     <c:url var="editUrl" value="editTransformation.htm">
@@ -23,8 +22,10 @@
         <td><c:out value="${transformation.name}" /></td> 
         <td><c:out value="${transformation.filename}" /></td>
         <td><c:out value="${transformation.contentType}" /></td>
-        <td><a href="${editUrl}"><img src="<c:url value="/resources/images/page_white_edit.png"/>" /></a></td>
-        <td><a href="${deleteUrl}"><img src="<c:url value="/resources/images/page_white_delete.png"/>" /></a></td>
+        <td class="buttons_bar" style="width: 180px;">
+            <a href="${editUrl}" class="button yellow"><small class="icon pencil"></small><span>Edit</span></a>
+            <a href="${deleteUrl}" class="button red"><small class="icon cross"></small><span>Remove</span></a>
+        </td>
     </tr>
 </c:forEach>
 </table>

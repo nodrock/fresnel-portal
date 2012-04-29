@@ -113,6 +113,13 @@ public class FresnelController {
         return "index";
     }
     
+    @RequestMapping(value = "/uploadProject.htm", method = RequestMethod.GET)
+    public String handleServiceEdit(Model model, HttpSession session) {
+        prepareModel(model, session);
+               
+        return "/uploadProject";
+    }
+    
     @RequestMapping(value = "/upload.htm", method = RequestMethod.POST)
     public String handleProjectUpload(@RequestParam("file") MultipartFile file, HttpServletRequest request, Model model, HttpSession session) {    
         if(file.isEmpty()){

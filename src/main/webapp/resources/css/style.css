@@ -494,7 +494,7 @@ color:#dbdbdb;
 form label.left {
 float:left;
 text-align:right;
-width:100px;
+width:110px;
 margin:5px 10px 0 0;
 }
 
@@ -527,7 +527,7 @@ background:#fff;
 }
 
 form select {
-display:block;
+/*display:block;*/
 border:1px solid #dbdbdb;
 color:#666;
 background:#f0f0f0;
@@ -648,6 +648,7 @@ color:#666;
 font-family:"Lucida Sans Unicode","Lucida Grande",Sans-Serif;
 line-height:19px;
 padding:8px;
+vertical-align: middle;
 }
 /*-------------------------TABLE--------------------------*/
 
@@ -708,6 +709,8 @@ a.logo {display:block;float:left;padding:4px 0 0 0;}
 p.last {margin:0px;}
 .clear,br {clear:both;font-size:0px;display:block;}
 .buttons_demo a {margin:0 24px 10px 0;}
+.buttons_bar {padding: 5px;}
+.buttons_bar a {margin:0 24px 0 0;}
 /*-------------------------OTHERS-------------------------*/
 
 /*-------------------------PAGER-------------------------*/

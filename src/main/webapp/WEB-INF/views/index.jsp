@@ -1,8 +1,4 @@
 <%@include file="header.jsp" %>
-<h1><fmt:message key="fresnel_portal"/></h1>
-
-<%@include file="uploadFile.jsp" %>   
-
 <table> 
     <tr>
         <th>URI</th>
@@ -10,8 +6,8 @@
         <th>Description</th>
         <th>Filename</th>
         <th></th>
-        <th></th>
-        <th></th>
+<!--        <th></th>
+        <th></th>-->
     </tr>
     <c:forEach items="${projects}" var="prod">
         <c:url var="downloadUrl" value="download.htm">
@@ -28,10 +24,16 @@
             <td><c:out value="${prod.name}"/></td>
             <td><c:out value="${prod.description}"/></td>
             <td><c:out value="${prod.filename}"/></td>
-            <td><a href="${downloadUrl}"><img src="<c:url value="/resources/images/page_white_download.png"/>" /></a></td>
+<!--            <td><a href="${downloadUrl}"><img src="<c:url value="/resources/images/page_white_download.png"/>" /></a></td>
             <td><a href="${deleteUrl}"><img src="<c:url value="/resources/images/page_white_delete.png"/>" /></a></td>
-            <td><a href="${fresnelDocumentUrl}"><img src="<c:url value="/resources/images/page_white_go.png"/>" /></a></td>
+            <td><a href="${fresnelDocumentUrl}"><img src="<c:url value="/resources/images/page_white_go.png"/>" /></a></td>-->
+            <td class="buttons_bar" style="width: 330px;">
+                <a href="${downloadUrl}" class="button yellow"><small class="icon save"></small><span>Download</span></a>
+                <a href="${deleteUrl}" class="button red"><small class="icon cross"></small><span>Remove</span></a>
+                <a href="${fresnelDocumentUrl}" class="button green"><small class="icon play"></small><span>Render</span></a>
+            </td>
         </tr>
     </c:forEach>
 </table>  
+<a href="<c:url value="uploadProject.htm"/>" class="button green"><small class="icon plus"></small><span>Add project</span></a>
 <%@include file="footer.jsp" %>

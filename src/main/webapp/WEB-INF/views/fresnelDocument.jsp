@@ -6,7 +6,6 @@
 
 <%@include file="header.jsp" %>
 <h1><c:out value="${project.name}" /></h1>
-<a href="<c:url value="/index.htm"/>">Back</a>
 <p>Found: <c:out value="${fn:length(lenses)}" /> lenses, <c:out value="${fn:length(formats)}" /> formats, <c:out value="${fn:length(groups)}" /> groups</p>
 
 <h2>Lenses:</h2>
@@ -25,6 +24,8 @@
     </c:forEach>
 </table>  
 
+<br />
+
 <h2>Formats:</h2>
 <table> 
     <tr>
@@ -40,6 +41,8 @@
         </tr>
     </c:forEach>
 </table>
+
+<br />
 
 <h2>Groups:</h2>
 <table> 
@@ -57,46 +60,47 @@
     </c:forEach>
 </table>
 
+<br />
+<hr />
+
 <form action="render.htm" method="post">
-    <fieldset><legend>Set visualization parameters</legend>
-        <table>
-            <tr>
-                <td>Select group:</td>
-                <td>
-                    <select name="selectedGroup">
-                        <c:forEach items="${groups}" var="group">
-                            <option value="${group.URI}" label="${group.URI}" />
-                        </c:forEach>
-                    </select>
-                </td>
-            </tr>
-            <tr>
-                <td>Select service:</td>
-                <td>
-                    <select name="selectedService">
-                        <option value="0" label="Semantic Web Client" />
-                        <c:forEach items="${services}" var="service">
-                            <option value="${service.id}" label="${service.name}" />
-                        </c:forEach>
-                    </select>
-                </td>
-            </tr>
-            <tr>
-                <td>Transformation:</td>
-                <td>
-                    <select name="selectedTransformation">
-                        <option value="0" label="No transformation" />
-                        <c:forEach items="${transformations}" var="transformation">
-                            <option value="${transformation.id}" label="${transformation.name}" />
-                        </c:forEach>
-                    </select>
-                </td>
-            </tr>
-            <tr>
-                <td></td>
-                <td><input type="submit" value="Render document" /></td>
-            </tr>
-        </table>
-    </fieldset>
+    <p>
+        <label for="selectedGroup" class="left">Select group:</label>
+        <select id="selectedGroup" name="selectedGroup" class="w_40">
+            <c:forEach items="${groups}" var="group">
+                <option value="${group.URI}" label="${group.URI}" />
+            </c:forEach>
+        </select>
+        <br /> 
+    </p>
+    <p>
+        <label for="selectedService" class="left">Select service:</label>
+
+        <select id="selectedService" name="selectedService" class="w_40">
+            <option value="0" label="Semantic Web Client" />
+            <c:forEach items="${services}" var="service">
+                <option value="${service.id}" label="${service.name}" />
+            </c:forEach>
+        </select>
+        <br />
+    </p>
+    <p>
+        <label for="selectedTransformation" class="left">Transformation:</label>
+
+        <select id="selectedTransformation" name="selectedTransformation" class="w_40">
+            <option value="0" label="No transformation" />
+            <c:forEach items="${transformations}" var="transformation">
+                <option value="${transformation.id}" label="${transformation.name}" />
+            </c:forEach>
+        </select>
+        <br />
+    </p>
+    <p>
+
+        <label for="submitBtn" class="left">&nbsp;</label>
+        <a href="" class="button form_submit" ><span>Render Document</span></a>
+        <input id="submitBtn" type="submit" value="Render Document" class="novisible" />
+    </p>
+
 </form>
 <%@include file="footer.jsp" %>
