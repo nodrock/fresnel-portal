@@ -11,8 +11,8 @@
 <h2>Lenses:</h2>
 <table> 
     <tr>
-        <th>URI</th>
-        <th>Label</th>
+        <th class="w_30">URI</th>
+        <th class="w_30">Label</th>
         <th>Comment</th>
     </tr>
     <c:forEach items="${lenses}" var="lens">
@@ -29,8 +29,8 @@
 <h2>Formats:</h2>
 <table> 
     <tr>
-        <th>URI</th>
-        <th>Label</th>
+        <th class="w_30">URI</th>
+        <th class="w_30">Label</th>
         <th>Comment</th>
     </tr>
     <c:forEach items="${formats}" var="format">
@@ -47,8 +47,8 @@
 <h2>Groups:</h2>
 <table> 
     <tr>
-        <th>URI</th>
-        <th>Label</th>
+        <th class="w_30">URI</th>
+        <th class="w_30">Label</th>
         <th>Comment</th>
     </tr>
     <c:forEach items="${groups}" var="group">
@@ -62,7 +62,7 @@
 
 <br />
 <hr />
-
+<h1><fmt:message key="fresnel_rendering_parameters" /></h1>
 <form action="render.htm" method="post">
     <p>
         <label for="selectedGroup" class="left">Select group:</label>

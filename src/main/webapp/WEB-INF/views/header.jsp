@@ -40,13 +40,13 @@
 						<div id="right"></div>
 						<ul>
 							<li>
-                                                            <a href="<c:url value="/index.htm"/>" class="selected"><span><fmt:message key="fresnel_projects"/></span></a>
+                                                            <a href="<c:url value="/index.htm"/>" <c:if test="${currentSection == 'fresnel_projects'}">class="selected"</c:if>><span><fmt:message key="fresnel_projects"/></span></a>
 							</li>
 							<li>
-                                                            <a href="<c:url value="/services/services.htm"/>"><span><fmt:message key="services_management"/></span></a>
+                                                            <a href="<c:url value="/services/services.htm"/>" <c:if test="${currentSection == 'services_management'}">class="selected"</c:if>><span><fmt:message key="services_management"/></span></a>
 							</li>
 							<li>
-                                                            <a href="<c:url value="/transformations/transformations.htm"/>"><span><fmt:message key="transformations_management"/></span></a>
+                                                            <a href="<c:url value="/transformations/transformations.htm"/>" <c:if test="${currentSection == 'transformations_management'}">class="selected"</c:if>><span><fmt:message key="transformations_management"/></span></a>
 							</li>
 						</ul>
 						<div class="clear"></div>

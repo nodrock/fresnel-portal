@@ -36,7 +36,7 @@ public class ServicesController {
     private ServiceManager serviceManager;
     
     private void prepareModel(Model model, HttpSession session){
-        model.addAttribute("currentPage", "services_management");
+        model.addAttribute("currentSection", "services_management");
         model.addAttribute("messages", session.getAttribute("messages"));
         session.removeAttribute("messages");
     }
@@ -60,6 +60,7 @@ public class ServicesController {
     @RequestMapping(value = "/services/services.htm", method = RequestMethod.GET)
     public String handleServicesIndex(Model model, HttpSession session) {
         prepareModel(model, session);
+        model.addAttribute("currentPage", "services");
         
         Collection<Service> services = serviceManager.findAllServices();
         model.addAttribute("services", services);
@@ -73,15 +74,15 @@ public class ServicesController {
         
         if(serviceId == null){
             model.addAttribute("service", new Service());
-            model.addAttribute("mode", "create");
+            model.addAttribute("currentPage", "create_service");
         }else{
             Service service = serviceManager.findServiceById(serviceId);
             if(service == null){
-                model.addAttribute("service", new Service());
-                model.addAttribute("mode", "create");
+                addMessage(session, new Message(Message.ERROR, "Service with this id NOT exist!"));
+                return "redirect:/services/services.htm"; 
             }else{
                 model.addAttribute("service", service);
-                model.addAttribute("mode", "edit");
+                model.addAttribute("currentPage", "edit_service");
             }
         }
         

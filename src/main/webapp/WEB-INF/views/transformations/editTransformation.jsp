@@ -5,8 +5,7 @@
 --%>
 
 <%@include file="../header.jsp" %>
-<h1>Services <c:if test="${mode == 'create'}">create</c:if><c:if test="${mode == 'edit'}">edit</c:if></h1>
-<form:form modelAttribute="service" action="saveTransformation.htm" method="post" enctype="multipart/form-data">
+<form:form modelAttribute="transformation" action="saveTransformation.htm" method="post" enctype="multipart/form-data">
     <form:hidden path="id" name="id" />
     <p>
         <label for="name" class="left">Name</label>
@@ -18,7 +17,7 @@
         <form:input path="contentType" id="contentType" type="text" name="contentType" class="text w_40"/>
         <br />
     </p>
-    <c:if test="${mode == 'create'}">
+    <c:if test="${transformation.id == null}">
         <p>
             <label for="file" class="left">XSLT file</label>
             <input inputid="fileData" type="file" name="file" class="w_40"/>

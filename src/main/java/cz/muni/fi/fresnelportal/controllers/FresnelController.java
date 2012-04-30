@@ -81,7 +81,7 @@ public class FresnelController {
     private TransformationManager transformationManager;
     
     private void prepareModel(Model model, HttpSession session){
-        model.addAttribute("currentPage", "fresnel_projects");
+        model.addAttribute("currentSection", "fresnel_projects");
         model.addAttribute("messages", session.getAttribute("messages"));
         session.removeAttribute("messages");
     }
@@ -105,6 +105,7 @@ public class FresnelController {
     @RequestMapping(value = "/index.htm", method = RequestMethod.GET)
     public String handleIndex(Model model, HttpSession session) {        
         prepareModel(model, session);
+        model.addAttribute("currentPage", "fresnel_projects");
         
         Collection<Project> projects = projectManager.findAllProjects();
             
@@ -116,6 +117,7 @@ public class FresnelController {
     @RequestMapping(value = "/uploadProject.htm", method = RequestMethod.GET)
     public String handleServiceEdit(Model model, HttpSession session) {
         prepareModel(model, session);
+        model.addAttribute("currentPage", "upload_fresnel_project");
                
         return "/uploadProject";
     }
@@ -123,8 +125,8 @@ public class FresnelController {
     @RequestMapping(value = "/upload.htm", method = RequestMethod.POST)
     public String handleProjectUpload(@RequestParam("file") MultipartFile file, HttpServletRequest request, Model model, HttpSession session) {    
         if(file.isEmpty()){
-            model.addAttribute("errors", new String[]{"No file to upload!"});
-            return "index";
+            addMessage(session, new Message(Message.ERROR, "No file to upload!"));
+            return "redirect:/index.htm";  
         }
         String projectsPath = request.getSession().getServletContext().getRealPath("/WEB-INF/projects/");
         
@@ -176,7 +178,7 @@ public class FresnelController {
             }
        }
         
-       return "redirect:index.htm";      
+       return "redirect:/index.htm";      
     }
     
     @RequestMapping(value = "/delete.htm", method = RequestMethod.GET)
@@ -200,6 +202,7 @@ public class FresnelController {
     @RequestMapping(value = "/fresnelDocument.htm", method = RequestMethod.GET)
     public String handleFresnelDocument(@RequestParam("id") Integer id, Model model, HttpServletRequest request, HttpSession session) {
         prepareModel(model, session);
+        model.addAttribute("currentPage", "render_fresnel_project");
         
         Project project = projectManager.findProjectById(id);
         if(project == null){

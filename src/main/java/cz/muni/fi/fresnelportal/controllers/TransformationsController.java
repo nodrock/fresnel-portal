@@ -41,7 +41,7 @@ public class TransformationsController {
     private TransformationManager transformationManager;
     
     private void prepareModel(Model model, HttpSession session){
-        model.addAttribute("currentPage", "transformations_management");
+        model.addAttribute("currentSection", "transformations_management");
         model.addAttribute("messages", session.getAttribute("messages"));
         session.removeAttribute("messages");
     }
@@ -65,6 +65,7 @@ public class TransformationsController {
     @RequestMapping(value = "/transformations/transformations.htm", method = RequestMethod.GET)
     public String handleTransformationsIndex(Model model, HttpSession session) {
         prepareModel(model, session);
+        model.addAttribute("currentPage", "transformations");
         
         Collection<Transformation> transformations = transformationManager.findAllTransformations();
         model.addAttribute("transformations", transformations);
@@ -75,18 +76,18 @@ public class TransformationsController {
     @RequestMapping(value = "/transformations/editTransformation.htm", method = RequestMethod.GET)
     public String handleTransformationEdit(@RequestParam(value="id", required=false) Integer transformationId, Model model, HttpSession session) {
         prepareModel(model, session);
-        
+            
         if(transformationId == null){
-            model.addAttribute("service", new Transformation());
-            model.addAttribute("mode", "create");
+            model.addAttribute("transformation", new Transformation());
+            model.addAttribute("currentPage", "create_transformation");
         }else{
             Transformation transformation = transformationManager.findTransformationById(transformationId);
             if(transformation == null){
-                model.addAttribute("service", new Transformation());
-                model.addAttribute("mode", "create");
+                addMessage(session, new Message(Message.ERROR, "Transformation with this id NOT exist!"));
+                return "redirect:/transformations/transformations.htm"; 
             }else{
-                model.addAttribute("service", transformation);
-                model.addAttribute("mode", "edit");
+                model.addAttribute("transformation", transformation);
+                model.addAttribute("currentPage", "edit_transformation");
             }
         }
         
@@ -113,7 +114,7 @@ public class TransformationsController {
     }
     
     @RequestMapping(value = "/transformations/saveTransformation.htm", method = RequestMethod.POST)
-    public String handleTransformationSave(@ModelAttribute("service") Transformation transformation, 
+    public String handleTransformationSave(@ModelAttribute("transformation") Transformation transformation, 
                                     Model model, HttpServletRequest request, HttpSession session, 
                                     @RequestParam(value="file", required=false) MultipartFile file) {
         String transformationsPath = request.getSession().getServletContext().getRealPath("/WEB-INF/transformations/");
