@@ -219,9 +219,9 @@ public class FresnelController {
         
         session.setAttribute("fresnelDocument", fresnelDocument);
         
-        Lens[] lenses = fresnelDocument.getLenses();
-        Format[] formats = fresnelDocument.getFormats();
-        Group[] groups = fresnelDocument.getGroups();
+        Collection<Lens> lenses = fresnelDocument.getLenses();
+        Collection<Format> formats = fresnelDocument.getFormats();
+        Collection<Group> groups = fresnelDocument.getGroups();
         
         model.addAttribute("project", project);
         model.addAttribute("lenses", lenses);
@@ -281,7 +281,7 @@ public class FresnelController {
             sje.setSemanticWebClient(semWebClient);
 
             try {
-                document = renderer.render(fd, fje, sje, lensURIs.toArray(new String[0]));
+                document = renderer.render(fd, fje, sje, lensURIs);
             } catch (ParserConfigurationException ex) {
                 logger.log(Level.SEVERE, null, ex);
                 addMessage(session, new Message(Message.ERROR, "Problem with parsing configuration!"));
@@ -305,7 +305,7 @@ public class FresnelController {
             sje.setModel(sparqlEndpointModel);
             
             try {
-                document = renderer.render(fd, fje, sje, lensURIs.toArray(new String[0]));
+                document = renderer.render(fd, fje, sje, lensURIs);
             } catch (ParserConfigurationException ex) {
                 logger.log(Level.SEVERE, null, ex);
                 addMessage(session, new Message(Message.ERROR, "Problem with parsing configuration!"));
