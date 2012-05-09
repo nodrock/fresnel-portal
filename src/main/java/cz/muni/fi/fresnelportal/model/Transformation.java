@@ -4,10 +4,13 @@
  */
 package cz.muni.fi.fresnelportal.model;
 
+import javax.xml.bind.annotation.XmlRootElement;
+
 /**
  *
  * @author nodrock
  */
+@XmlRootElement(name="transformation")
 public class Transformation {
     private Integer id;
     private String name;

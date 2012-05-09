@@ -4,10 +4,13 @@
  */
 package cz.muni.fi.fresnelportal.model;
 
+import javax.xml.bind.annotation.XmlRootElement;
+
 /**
  *
  * @author nodrock
  */
+@XmlRootElement(name="service")
 public class Service {
     private Integer id;
     private String name;
@@ -48,6 +51,6 @@ public class Service {
     
     @Override
     public String toString() {
-        return "Project {" + " id = " + id + ", name = " + name + ", url = " + url + '}';
+        return "Service {" + " id = " + id + ", name = " + name + ", url = " + url + '}';
     }
 }

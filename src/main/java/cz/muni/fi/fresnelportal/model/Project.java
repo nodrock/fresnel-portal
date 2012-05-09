@@ -10,13 +10,18 @@ import fr.inria.jfresnel.jena.FresnelJenaParser;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.util.logging.Level;
+import javax.persistence.Transient;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 
 /**
  *
  * @author nodrock
  */
+@XmlRootElement(name="project")
 public class Project {
+    @Transient
+    @XmlTransient
     private FresnelDocument fresnelDocument;
     private Integer id;
     private String uri;
