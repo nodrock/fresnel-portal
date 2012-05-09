@@ -32,10 +32,10 @@ public class ProjectList {
 	}
 	
 	@XmlElement(name="project")
-	public Collection<Project> getServices() {
+	public Collection<Project> getProjects() {
 		return projects;
 	}
-	public void setServices(Collection<Project> projects) {
+	public void setProjects(Collection<Project> projects) {
 		this.projects = projects;
 	}
 }

@@ -4,6 +4,7 @@
  */
 package cz.muni.fi.fresnelportal.rest;
 
+import cz.muni.fi.fresnelportal.controllers.FresnelController;
 import cz.muni.fi.fresnelportal.manager.ProjectManager;
 import cz.muni.fi.fresnelportal.manager.ServiceManager;
 import cz.muni.fi.fresnelportal.manager.TransformationManager;
@@ -13,13 +14,24 @@ import cz.muni.fi.fresnelportal.model.Service;
 import cz.muni.fi.fresnelportal.model.ServiceList;
 import cz.muni.fi.fresnelportal.model.Transformation;
 import cz.muni.fi.fresnelportal.model.TransformationList;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.Collection;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  *
@@ -27,7 +39,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
  */
 @Controller
 public class RESTController {
-
+    private static final Logger logger = Logger.getLogger(RESTController.class.getName());
+    
     @Autowired
     private ServiceManager serviceManager;
     
@@ -77,5 +90,65 @@ public class RESTController {
     public Project getProject(@PathVariable("id") int id) {
         Project project = projectManager.findProjectById(id);
         return project;
+    }
+    
+    @RequestMapping(value = "/upload", method = RequestMethod.POST, headers = "Accept=application/json,application/xml")
+    @ResponseBody
+    public Project handleProjectUpload(@RequestParam("file") MultipartFile file, HttpServletRequest request, Model model, HttpSession session) {  
+        Project project = null;
+        
+        if(file.isEmpty()){
+            return null;
+        }
+        String projectsPath = request.getSession().getServletContext().getRealPath("/WEB-INF/projects/");
+        
+        if (!file.isEmpty()) {
+            byte[] bytes;
+            try {
+                bytes = file.getBytes();
+            } catch (IOException ex) {
+                logger.log(Level.SEVERE, null, ex);
+                return null;               
+            }
+            // gets name of original file
+            File f = new File(file.getOriginalFilename());
+            String name = f.getName();
+            
+            // create new name in projects folder
+            File saveFile = new File(projectsPath + File.separatorChar + name);
+            int i = 0;
+            while(saveFile.exists()){
+                i++;
+                saveFile = new File(projectsPath + File.separatorChar + i + f.getName());
+                name = i + f.getName();
+            }
+            
+            // writes file to projects folder
+            FileOutputStream fos;
+            try {
+                fos = new FileOutputStream(saveFile);
+                fos.write(bytes);
+                fos.close();
+            } catch (FileNotFoundException ex) {
+                logger.log(Level.SEVERE, null, ex);
+                
+                return null;  
+            } catch (IOException ex){
+                logger.log(Level.SEVERE, null, ex);
+               
+                return null; 
+            }
+            
+               
+            // try to create Project
+            project = projectManager.createProject(saveFile);
+            if(project == null){
+                saveFile.delete();
+                
+                return null; 
+            }
+       }
+        
+       return project;  
     }
 }

@@ -241,12 +241,20 @@ public class FresnelController {
     public String handleFresnelDocument(@RequestParam("selectedGroup") String selectedGroup,
                                         @RequestParam("selectedService") Integer selectedService, 
                                         @RequestParam("selectedTransformation") Integer selectedTransformation,
+                                        @RequestParam(value="projectId", required=false) Integer projectId,
                                         Model model, HttpSession session,
                                         HttpServletRequest request, HttpServletResponse response) {        
         String transformationsPath = request.getSession().getServletContext().getRealPath("/WEB-INF/transformations/");
         
         FresnelDocument fd;
         Object attribute = session.getAttribute("fresnelDocument");
+        
+        if(projectId != null){
+            Project project = projectManager.findProjectById(projectId);
+            String projectsPath = request.getSession().getServletContext().getRealPath("/WEB-INF/projects/");
+            attribute = project.getFresnelDocument(projectsPath);
+        }
+        
         if(attribute == null){
             addMessage(session, new Message(Message.ERROR, "No document in session!"));
             return "redirect:/index.htm"; 
