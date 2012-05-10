@@ -5,13 +5,13 @@
 --%>
 
 <%@include file="header.jsp" %>
-<h1><c:out value="${project.name}" /></h1>
+<h1><c:out value="${project.title}" /></h1>
 <p>Found: <c:out value="${fn:length(lenses)}" /> lenses, <c:out value="${fn:length(formats)}" /> formats, <c:out value="${fn:length(groups)}" /> groups</p>
 
 <h2>Lenses:</h2>
 <table> 
     <tr>
-        <th class="w_30">URI</th>
+        <th class="w_40">URI</th>
         <th class="w_30">Label</th>
         <th>Comment</th>
     </tr>
@@ -29,7 +29,7 @@
 <h2>Formats:</h2>
 <table> 
     <tr>
-        <th class="w_30">URI</th>
+        <th class="w_40">URI</th>
         <th class="w_30">Label</th>
         <th>Comment</th>
     </tr>
@@ -47,7 +47,7 @@
 <h2>Groups:</h2>
 <table> 
     <tr>
-        <th class="w_30">URI</th>
+        <th class="w_40">URI</th>
         <th class="w_30">Label</th>
         <th>Comment</th>
     </tr>

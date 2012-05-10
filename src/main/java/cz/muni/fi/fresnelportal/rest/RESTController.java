@@ -141,7 +141,7 @@ public class RESTController {
             
                
             // try to create Project
-            project = projectManager.createProject(saveFile);
+//            project = projectManager.createProject(saveFile);
             if(project == null){
                 saveFile.delete();
                 

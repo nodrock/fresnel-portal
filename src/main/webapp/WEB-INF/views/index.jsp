@@ -20,8 +20,8 @@
             <c:param name="id" value="${prod.id}" />
         </c:url>
         <tr>
-            <td><c:out value="${prod.uri}"/></td>
-            <td><c:out value="${prod.name}"/></td>
+            <td><a href="<c:out value="${prod.uri}"/>"><c:out value="${prod.uri}"/></a></td>
+            <td><c:out value="${prod.title}"/></td>
             <td><c:out value="${prod.description}"/></td>
             <td><c:out value="${prod.filename}"/></td>
 <!--            <td><a href="${downloadUrl}"><img src="<c:url value="/resources/images/page_white_download.png"/>" /></a></td>

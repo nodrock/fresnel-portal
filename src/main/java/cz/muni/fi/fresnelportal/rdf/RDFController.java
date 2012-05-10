@@ -12,6 +12,7 @@ import cz.muni.fi.fresnelportal.manager.ProjectManager;
 import cz.muni.fi.fresnelportal.model.Project;
 import fr.inria.jfresnel.FresnelDocument;
 import fr.inria.jfresnel.jena.FresnelJenaWriter;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -26,6 +27,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.ws.rs.PathParam;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
@@ -99,10 +101,15 @@ public class RDFController {
         try {
             response.setHeader("Content-Type", "text/html");
             InputStream is = new FileInputStream(projectFile);
-            OutputStream out = response.getOutputStream();
+            OutputStream out = new ByteArrayOutputStream();
             IOUtils.copy(is, out);      
             is.close();
             out.close();
+            response.getWriter().println("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\" \"http://www.w3.org/TR/html4/loose.dtd\">");
+            response.getWriter().println("<html><title>" + project.getTitle() + "</title><body></body><pre>");
+            String doc = out.toString();
+            response.getWriter().println(StringEscapeUtils.escapeHtml(doc));
+            response.getWriter().println("</pre></body></html>");
         } catch (FileNotFoundException ex) {
             Logger.getLogger(RDFController.class.getName()).log(Level.SEVERE, null, ex);
         }

@@ -14,7 +14,7 @@ import java.util.List;
  * @author nodrock
  */
 public interface ProjectManager {
-    public Project createProject(File file);
+    public Project createProject(File file, String namespace);
     public boolean deleteProject(Project project);
     public Project findProjectById(int id);
     public Project findProjectByName(String name);

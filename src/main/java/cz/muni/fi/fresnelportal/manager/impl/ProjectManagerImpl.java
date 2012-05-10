@@ -12,7 +12,9 @@ import com.hp.hpl.jena.rdf.model.Statement;
 import com.hp.hpl.jena.rdf.model.StmtIterator;
 import cz.muni.fi.fresnelportal.FresnelPortalConstants;
 import cz.muni.fi.fresnelportal.manager.ProjectManager;
+import cz.muni.fi.fresnelportal.model.DatasetInfo;
 import cz.muni.fi.fresnelportal.model.Project;
+import cz.muni.fi.fresnelportal.utils.FresnelPortalUtils;
 import fr.inria.jfresnel.Constants;
 import fr.inria.jfresnel.FresnelDocument;
 import fr.inria.jfresnel.jena.FresnelJenaParser;
@@ -57,7 +59,7 @@ public class ProjectManagerImpl implements ProjectManager {
     }
 
     @Override
-    public Project createProject(File file) {
+    public Project createProject(File file, String namespace) {
         logger.log(Level.INFO, "Reading project informations from file: {0}", file.toString());
         Model model = ModelFactory.createDefaultModel();
         
@@ -71,47 +73,12 @@ public class ProjectManagerImpl implements ProjectManager {
             logger.log(Level.SEVERE, null, ex);
             return null;
         }
-        
-        StmtIterator si = model.listStatements(null, model.createProperty(Constants.RDF_NAMESPACE_URI, Constants._type), model.getResource(FresnelPortalConstants._Dataset));
-	Statement s;
-        Resource project;
-	if (si.hasNext()){
-	    s = si.nextStatement();
-            project = s.getSubject();
-            
-            String uri = project.getURI();
-            String[] parts = uri.split("/");
-            if(parts.length <= 1){
-                return null;
-            }
-            String name = parts[parts.length-1];
-            if(name.indexOf("#") != -1){
-                return null;
-            }
-            
-            Statement titleStmt = project.getProperty(model.createProperty(FresnelPortalConstants.DCTERMS_NAMESPACE_URI, FresnelPortalConstants._title));
-            Statement descriptionStmt = project.getProperty(model.createProperty(FresnelPortalConstants.DCTERMS_NAMESPACE_URI, FresnelPortalConstants._description));
-            if(titleStmt == null){
-                return null;
-            }
-            String title = titleStmt.getLiteral().getLexicalForm();
-            if(title == null){
-                return null;
-            }
-            String description = null;
-            if(descriptionStmt != null){
-                description = descriptionStmt.getLiteral().getLexicalForm();
-            }
-            if(description == null){
-                description = "";
-            }
+        DatasetInfo info = FresnelPortalUtils.parseDatasetInfo(model);
+        if(info == null){
+            return null;
+        }
          
-            return createProject(new Project(null, uri, name, title, description, file.getName()));            
-	}
-	si.close();
-        model.close();
-        
-        return null;
+        return createProject(new Project(null, namespace + info.getName(), info.getName(), info.getTitle(), info.getDescription(), file.getName()));            
     }
     
     private Project createProject(Project project){
@@ -123,6 +90,7 @@ public class ProjectManagerImpl implements ProjectManager {
         Map<String, Object> parameters = new HashMap<String, Object>();
         parameters.put("uri", project.getUri());
         parameters.put("name", project.getName());
+        parameters.put("title", project.getTitle());
         parameters.put("description", project.getDescription());
         parameters.put("filename", project.getFilename());
 
