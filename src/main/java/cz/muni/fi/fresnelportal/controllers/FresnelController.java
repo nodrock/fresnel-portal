@@ -16,6 +16,7 @@ import cz.muni.fi.fresnelportal.model.Transformation;
 import cz.muni.fi.jfresnel.jena.semanticweb.SPARQLEndpointGraph;
 import cz.muni.fi.jfresnel.jena.semanticweb.SPARQLJenaSemWebClientEvaluator;
 import cz.muni.fi.fresnelportal.utils.FresnelPortalUtils;
+import cz.muni.fi.fresnelportal.utils.HttpUtils;
 import de.fuberlin.wiwiss.ng4j.semwebclient.SemanticWebClient;
 import fr.inria.jfresnel.Format;
 import fr.inria.jfresnel.FresnelDocument;
@@ -82,23 +83,6 @@ public class FresnelController {
     @Autowired
     private TransformationManager transformationManager;
 
-    private String getBaseUrl(HttpServletRequest request) {
-        String baseUrl;
-        if ((request.getServerPort() == 80)
-                || (request.getServerPort() == 443)) {
-            baseUrl =
-                    request.getScheme() + "://"
-                    + request.getServerName()
-                    + request.getContextPath();
-        } else {
-            baseUrl =
-                    request.getScheme() + "://"
-                    + request.getServerName() + ":" + request.getServerPort()
-                    + request.getContextPath();
-        }
-        return baseUrl;
-    }
-
     private void prepareModel(Model model, HttpSession session) {
         model.addAttribute("currentSection", "fresnel_projects");
         model.addAttribute("messages", session.getAttribute("messages"));
@@ -150,14 +134,6 @@ public class FresnelController {
         String projectsPath = request.getSession().getServletContext().getRealPath("/WEB-INF/projects/");
 
         if (!file.isEmpty()) {
-//            byte[] bytes;
-//            try {
-//                bytes = file.getBytes();
-//            } catch (IOException ex) {
-//                logger.log(Level.SEVERE, null, ex);
-//                addMessage(session, new Message(Message.ERROR, "Problem with uploaded file!"));
-//                return "redirect:/index.htm";
-//            }
             // gets name of original file
             File f = new File(file.getOriginalFilename());
             String name = f.getName();
@@ -171,15 +147,13 @@ public class FresnelController {
                 name = i + f.getName();
             }
 
-            String projectsNamespace = getBaseUrl(request) + "/rdf/projects/";
+            String projectsNamespace = HttpUtils.getBaseUrl(request) + "/rdf/projects/";
             
             // writes file to projects folder
             FileOutputStream fos;
             try {
                 fos = new FileOutputStream(saveFile);
                 FresnelPortalUtils.replaceNamespaces(projectsNamespace, file.getInputStream(), fos);
-                
-//                fos.write(bytes);
                 fos.close();
             } catch (FileNotFoundException ex) {
                 logger.log(Level.SEVERE, null, ex);

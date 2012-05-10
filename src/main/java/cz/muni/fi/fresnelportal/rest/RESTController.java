@@ -14,6 +14,8 @@ import cz.muni.fi.fresnelportal.model.Service;
 import cz.muni.fi.fresnelportal.model.ServiceList;
 import cz.muni.fi.fresnelportal.model.Transformation;
 import cz.muni.fi.fresnelportal.model.TransformationList;
+import cz.muni.fi.fresnelportal.utils.FresnelPortalUtils;
+import cz.muni.fi.fresnelportal.utils.HttpUtils;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -103,49 +105,44 @@ public class RESTController {
         String projectsPath = request.getSession().getServletContext().getRealPath("/WEB-INF/projects/");
         
         if (!file.isEmpty()) {
-            byte[] bytes;
-            try {
-                bytes = file.getBytes();
-            } catch (IOException ex) {
-                logger.log(Level.SEVERE, null, ex);
-                return null;               
-            }
             // gets name of original file
             File f = new File(file.getOriginalFilename());
             String name = f.getName();
-            
+
             // create new name in projects folder
             File saveFile = new File(projectsPath + File.separatorChar + name);
             int i = 0;
-            while(saveFile.exists()){
+            while (saveFile.exists()) {
                 i++;
                 saveFile = new File(projectsPath + File.separatorChar + i + f.getName());
                 name = i + f.getName();
             }
+
+            String projectsNamespace = HttpUtils.getBaseUrl(request) + "/rdf/projects/";
             
             // writes file to projects folder
             FileOutputStream fos;
             try {
                 fos = new FileOutputStream(saveFile);
-                fos.write(bytes);
+                FresnelPortalUtils.replaceNamespaces(projectsNamespace, file.getInputStream(), fos);
                 fos.close();
             } catch (FileNotFoundException ex) {
                 logger.log(Level.SEVERE, null, ex);
                 
-                return null;  
-            } catch (IOException ex){
+                return null;
+            } catch (IOException ex) {
                 logger.log(Level.SEVERE, null, ex);
-               
-                return null; 
+                
+                return null;
             }
-            
-               
+
+
             // try to create Project
-//            project = projectManager.createProject(saveFile);
-            if(project == null){
+            project = projectManager.createProject(saveFile, projectsNamespace);
+            if (project == null) {
                 saveFile.delete();
                 
-                return null; 
+                return null;
             }
        }
         
