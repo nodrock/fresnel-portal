@@ -25,6 +25,15 @@
         <servlet-name>rest</servlet-name>
         <url-pattern>/rest/*</url-pattern>
     </servlet-mapping> 
+    <servlet>
+        <servlet-name>rdf</servlet-name>
+        <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+        <load-on-startup>3</load-on-startup>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>rdf</servlet-name>
+        <url-pattern>/rdf/*</url-pattern>
+    </servlet-mapping> 
     <session-config>
         <session-timeout>
             30

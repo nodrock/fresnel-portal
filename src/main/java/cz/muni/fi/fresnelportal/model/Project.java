@@ -26,13 +26,15 @@ public class Project {
     private Integer id;
     private String uri;
     private String name;
+    private String title;
     private String description;
     private String filename;
 
-    public Project(Integer id, String uri, String name, String description, String filename) {
+    public Project(Integer id, String uri, String name, String title, String description, String filename) {
         this.id = id;
         this.uri = uri;
         this.name = name;
+        this.title = title;
         this.description = description;
         this.filename = filename;
     }
@@ -65,6 +67,14 @@ public class Project {
         this.name = name;
     }
 
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+    
     public String getUri() {
         return uri;
     }
@@ -101,6 +111,6 @@ public class Project {
     
     @Override
     public String toString() {
-        return "Project {" + " id = " + id + ", uri = " + uri + ", name = " + name + ", description = " + description + ", filename = " + filename + '}';
+        return "Project {" + " id = " + id + ", uri = " + uri + ", name = " + name + ", title = " + title + ", description = " + description + ", filename = " + filename + '}';
     }
 }

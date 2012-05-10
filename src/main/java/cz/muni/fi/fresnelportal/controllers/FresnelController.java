@@ -370,7 +370,7 @@ public class FresnelController {
         String projectsPath = request.getSession().getServletContext().getRealPath("/WEB-INF/projects/");
         File file = new File(projectsPath + File.separatorChar + project.getFilename());
         try {
-            response.setContentType("text/n3;charset=UTF-8");
+            response.setContentType("application/rdf+n3;charset=UTF-8");
             response.setHeader("Content-Disposition", "attachment; filename=\""+ project.getFilename() +"\"");
             InputStream is = new FileInputStream(file);
             OutputStream out = response.getOutputStream();

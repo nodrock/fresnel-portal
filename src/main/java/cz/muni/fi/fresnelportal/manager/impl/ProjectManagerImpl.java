@@ -45,7 +45,7 @@ public class ProjectManagerImpl implements ProjectManager {
     private static final RowMapper<Project> PROJECT_MAPPER = new RowMapper<Project>() {
         @Override
         public Project mapRow(ResultSet rs, int i) throws SQLException {
-            return new Project(rs.getInt("id"), rs.getString("uri"), rs.getString("name"), rs.getString("description"), rs.getString("filename"));
+            return new Project(rs.getInt("id"), rs.getString("uri"), rs.getString("name"), rs.getString("title"), rs.getString("description"), rs.getString("filename"));
         }
     };
         
@@ -72,7 +72,7 @@ public class ProjectManagerImpl implements ProjectManager {
             return null;
         }
         
-        StmtIterator si = model.listStatements(null, model.createProperty(Constants.RDF_NAMESPACE_URI, Constants._type), model.getResource(FresnelPortalConstants._Project));
+        StmtIterator si = model.listStatements(null, model.createProperty(Constants.RDF_NAMESPACE_URI, Constants._type), model.getResource(FresnelPortalConstants._Dataset));
 	Statement s;
         Resource project;
 	if (si.hasNext()){
@@ -80,14 +80,22 @@ public class ProjectManagerImpl implements ProjectManager {
             project = s.getSubject();
             
             String uri = project.getURI();
-            
-            Statement nameStmt = project.getProperty(model.createProperty(FresnelPortalConstants.DOAP_NAMESPACE_URI, FresnelPortalConstants._name));
-            Statement descriptionStmt = project.getProperty(model.createProperty(FresnelPortalConstants.DOAP_NAMESPACE_URI, FresnelPortalConstants._description));
-            if(nameStmt == null){
+            String[] parts = uri.split("/");
+            if(parts.length <= 1){
                 return null;
             }
-            String name = nameStmt.getLiteral().getLexicalForm();
-            if(name == null){
+            String name = parts[parts.length-1];
+            if(name.indexOf("#") != -1){
+                return null;
+            }
+            
+            Statement titleStmt = project.getProperty(model.createProperty(FresnelPortalConstants.DCTERMS_NAMESPACE_URI, FresnelPortalConstants._title));
+            Statement descriptionStmt = project.getProperty(model.createProperty(FresnelPortalConstants.DCTERMS_NAMESPACE_URI, FresnelPortalConstants._description));
+            if(titleStmt == null){
+                return null;
+            }
+            String title = titleStmt.getLiteral().getLexicalForm();
+            if(title == null){
                 return null;
             }
             String description = null;
@@ -98,7 +106,7 @@ public class ProjectManagerImpl implements ProjectManager {
                 description = "";
             }
          
-            return createProject(new Project(null, uri, name, description, file.getName()));            
+            return createProject(new Project(null, uri, name, title, description, file.getName()));            
 	}
 	si.close();
         model.close();
@@ -159,6 +167,20 @@ public class ProjectManagerImpl implements ProjectManager {
         try {
             return jdbcTemplate.query("SELECT * FROM projects", PROJECT_MAPPER);
         }catch(DataAccessException ex){
+            logger.log(Level.SEVERE, "Database error: {0}", ex.toString() );
+            return null;
+        }
+    }
+
+    @Override
+    public Project findProjectByName(String name) {
+        if (name == null ) {
+            throw new IllegalArgumentException("name");
+        }
+        logger.log(Level.INFO, "Finding project by name: {0}", name);
+        try {
+            return jdbcTemplate.queryForObject("SELECT * FROM projects WHERE name=?", PROJECT_MAPPER, name);
+        } catch (DataAccessException ex) {
             logger.log(Level.SEVERE, "Database error: {0}", ex.toString() );
             return null;
         }
