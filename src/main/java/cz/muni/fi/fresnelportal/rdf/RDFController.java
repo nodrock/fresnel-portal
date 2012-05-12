@@ -49,7 +49,7 @@ public class RDFController {
     public String getProjectSeeOthersHtml(@PathVariable(value="name") String name, HttpServletRequest request, HttpServletResponse response, HttpSession session) throws IOException {
         String projectsPath = session.getServletContext().getRealPath("/WEB-INF/projects/");
         Project project = projectManager.findProjectByName(name);
-        //FresnelDocument fresnelDocument = project.getFresnelDocument(projectsPath);
+
         File projectFile = new File(projectsPath + File.separatorChar + project.getFilename());
         if(projectFile.exists()){    
             response.setStatus(303);
@@ -64,7 +64,7 @@ public class RDFController {
     public String getProjectSeeOthersRDFN3(@PathVariable(value="name") String name, HttpServletRequest request, HttpServletResponse response, HttpSession session) throws IOException {
         String projectsPath = session.getServletContext().getRealPath("/WEB-INF/projects/");
         Project project = projectManager.findProjectByName(name);
-        //FresnelDocument fresnelDocument = project.getFresnelDocument(projectsPath);
+
         File projectFile = new File(projectsPath + File.separatorChar + project.getFilename());
         if(projectFile.exists()){    
             response.setStatus(303);
@@ -79,7 +79,7 @@ public class RDFController {
     public String getProjectSeeOthersRDFXML(@PathVariable(value="name") String name, HttpServletRequest request, HttpServletResponse response, HttpSession session) throws IOException {
         String projectsPath = session.getServletContext().getRealPath("/WEB-INF/projects/");
         Project project = projectManager.findProjectByName(name);
-        //FresnelDocument fresnelDocument = project.getFresnelDocument(projectsPath);
+
         File projectFile = new File(projectsPath + File.separatorChar + project.getFilename());
         if(projectFile.exists()){    
             response.setStatus(303);
@@ -94,7 +94,7 @@ public class RDFController {
     public String getProjectHTML(@PathVariable(value="name") String name, HttpServletRequest request, HttpServletResponse response, HttpSession session) throws IOException {       
         String projectsPath = session.getServletContext().getRealPath("/WEB-INF/projects/");
         Project project = projectManager.findProjectByName(name);
-        //FresnelDocument fresnelDocument = project.getFresnelDocument(projectsPath);
+
         File projectFile = new File(projectsPath + File.separatorChar + project.getFilename());
 
 
@@ -121,7 +121,7 @@ public class RDFController {
     public String getProjectRDFN3(@PathVariable(value="name") String name, HttpServletRequest request, HttpServletResponse response, HttpSession session) throws IOException {       
         String projectsPath = session.getServletContext().getRealPath("/WEB-INF/projects/");
         Project project = projectManager.findProjectByName(name);
-        //FresnelDocument fresnelDocument = project.getFresnelDocument(projectsPath);
+
         File projectFile = new File(projectsPath + File.separatorChar + project.getFilename());
 
 
@@ -143,7 +143,7 @@ public class RDFController {
     public String getProjectRDFXML(@PathVariable(value="name") String name, HttpServletRequest request, HttpServletResponse response, HttpSession session) throws IOException {       
         String projectsPath = session.getServletContext().getRealPath("/WEB-INF/projects/");
         Project project = projectManager.findProjectByName(name);
-        //FresnelDocument fresnelDocument = project.getFresnelDocument(projectsPath);
+
         File projectFile = new File(projectsPath + File.separatorChar + project.getFilename());
         
         Model model = ModelFactory.createDefaultModel();

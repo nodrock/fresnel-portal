@@ -14,9 +14,5 @@
 
     <mvc:annotation-driven />
     <context:component-scan base-package="cz.muni.fi.fresnelportal.rdf" />
-
-    <bean class="org.springframework.web.servlet.mvc.support.ControllerClassNameHandlerMapping"/>
-    
-    <bean class="org.springframework.web.servlet.mvc.SimpleControllerHandlerAdapter"/>
     
 </beans>

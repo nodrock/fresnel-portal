@@ -120,57 +120,76 @@ public class TransformationsController {
         String transformationsPath = request.getSession().getServletContext().getRealPath("/WEB-INF/transformations/");
         
         if(transformation == null){
-            model.addAttribute("errors", new String[]{});
             addMessage(session, new Message(Message.ERROR, "No transformation!"));
             return "redirect:/transformations/transformations.htm";   
         }
+        
+        boolean valid = true;
+        if(transformation.getName().equals("") || transformation.getContentType().equals("")){
+            addMessage(session, new Message(Message.ERROR, "All fields are required!"));
+            valid = false; 
+        }
+        
+        if(file.isEmpty()){
+            addMessage(session, new Message(Message.ERROR, "No file to upload!"));
+            valid = false; 
+        }
+        
+        if(!valid){
+            prepareModel(model, session);
+            if(transformation.getId() == null){             
+                model.addAttribute("currentPage", "create_transformation");
+            }else{
+                model.addAttribute("currentPage", "edit_transformation");
+            }
+            model.addAttribute("transformation", transformation);
+            return "/transformations/editTransformation"; 
+        }
+        
         if(transformation.getId() == null){
-            if (!file.isEmpty()) {
-                byte[] bytes;
-                try {
-                    bytes = file.getBytes();
-                } catch (IOException ex) {
-                    logger.log(Level.SEVERE, null, ex);
-                    addMessage(session, new Message(Message.ERROR, "Problem with uploaded file!"));
-                    return "redirect:/transformations/transformations.htm";   
-                }
-                // gets name of original file
-                File f = new File(file.getOriginalFilename());
-                String name = f.getName();
+            byte[] bytes;
+            try {
+                bytes = file.getBytes();
+            } catch (IOException ex) {
+                logger.log(Level.SEVERE, null, ex);
+                addMessage(session, new Message(Message.ERROR, "Problem with uploaded file!"));
+                return "redirect:/transformations/transformations.htm";   
+            }
+            // gets name of original file
+            File f = new File(file.getOriginalFilename());
+            String name = f.getName();
 
-                // create new name in projects folder
-                File saveFile = new File(transformationsPath + File.separatorChar + name);
-                int i = 0;
-                while(saveFile.exists()){
-                    i++;
-                    saveFile = new File(transformationsPath + File.separatorChar + i + f.getName());
-                    name = i + f.getName();
-                }
+            // create new name in projects folder
+            File saveFile = new File(transformationsPath + File.separatorChar + name);
+            int i = 0;
+            while(saveFile.exists()){
+                i++;
+                saveFile = new File(transformationsPath + File.separatorChar + i + f.getName());
+                name = i + f.getName();
+            }
 
-                // writes file to projects folder
-                FileOutputStream fos;
-                try {
-                    fos = new FileOutputStream(saveFile);
-                    fos.write(bytes);
-                    fos.close();
-                } catch (FileNotFoundException ex) {
-                    logger.log(Level.SEVERE, null, ex);
-                    addMessage(session, new Message(Message.ERROR, "Can't open output file on server!"));
-                    return "redirect:/transformations/transformations.htm";   
-                } catch (IOException ex) {
-                    logger.log(Level.SEVERE, null, ex);
-                    addMessage(session, new Message(Message.ERROR, "Can't write to output file on server!"));
-                    return "redirect:/transformations/transformations.htm";   
-                }
+            // writes file to projects folder
+            FileOutputStream fos;
+            try {
+                fos = new FileOutputStream(saveFile);
+                fos.write(bytes);
+                fos.close();
+            } catch (FileNotFoundException ex) {
+                logger.log(Level.SEVERE, null, ex);
+                addMessage(session, new Message(Message.ERROR, "Can't open output file on server!"));
+                return "redirect:/transformations/transformations.htm";   
+            } catch (IOException ex) {
+                logger.log(Level.SEVERE, null, ex);
+                addMessage(session, new Message(Message.ERROR, "Can't write to output file on server!"));
+                return "redirect:/transformations/transformations.htm";   
+            }
 
-
-                // try to create Transformation
-                Transformation trans = transformationManager.createTransformation(new Transformation(null, transformation.getName(), name, transformation.getContentType()));
-                if (trans == null) {
-                    saveFile.delete();
-                    addMessage(session, new Message(Message.ERROR, "Can't create transformation!"));
-                    return "redirect:/transformations/transformations.htm";  
-                }
+            // try to create Transformation
+            Transformation trans = transformationManager.createTransformation(new Transformation(null, transformation.getName(), name, transformation.getContentType()));
+            if (trans == null) {
+                saveFile.delete();
+                addMessage(session, new Message(Message.ERROR, "Can't create transformation!"));
+                return "redirect:/transformations/transformations.htm";  
             }
             
         }else{

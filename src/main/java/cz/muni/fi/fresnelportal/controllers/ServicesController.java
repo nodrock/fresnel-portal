@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.logging.Logger;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import org.apache.commons.validator.UrlValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -110,7 +111,31 @@ public class ServicesController {
             addMessage(session, new Message(Message.ERROR, "No service!"));
             return "redirect:/services/services.htm";    
         }
-        if(service.getId() == null){
+        
+        boolean valid = true;
+        if(service.getName().equals("") || service.getUrl().equals("")){
+            addMessage(session, new Message(Message.ERROR, "All fields are required!"));
+            valid = false; 
+        }
+        
+        UrlValidator urlValidator = new UrlValidator();
+        if(!urlValidator.isValid(service.getUrl())){
+            addMessage(session, new Message(Message.ERROR, "Url is NOT valid!"));
+            valid = false;             
+        }
+        
+        if(!valid){
+            prepareModel(model, session);
+            if(service.getId() == null){             
+                model.addAttribute("currentPage", "create_service");
+            }else{
+                model.addAttribute("currentPage", "edit_service");
+            }
+            model.addAttribute("service", service);
+            return "/services/editService"; 
+        }
+        
+        if(service.getId() == null){          
             serviceManager.createService(service);
         }else{
             serviceManager.updateUser(service);
