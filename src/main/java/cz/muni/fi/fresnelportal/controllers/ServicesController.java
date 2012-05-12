@@ -138,7 +138,7 @@ public class ServicesController {
         if(service.getId() == null){          
             serviceManager.createService(service);
         }else{
-            serviceManager.updateUser(service);
+            serviceManager.updateService(service);
         }  
         
         return "redirect:/services/services.htm";

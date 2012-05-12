@@ -59,6 +59,11 @@ public class Transformation {
         this.name = name;
     }
 
+    // change this in Spring 3.1.1 with @Valid annotation
+    public boolean isValid(){
+        return name != null && contentType != null && !name.equals("") && contentType.equals("");
+    }
+    
     @Override
     public String toString() {
         return "Transformation { id = " + id + ", name = " + name + ", filename = " + filename  + ", contentType = " + contentType + " }";

@@ -25,10 +25,12 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import org.apache.commons.validator.UrlValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -66,6 +68,30 @@ public class RESTController {
         return service;
     }
     
+    @RequestMapping(method = RequestMethod.DELETE, value = "/service/{id}", headers = "Accept=application/json,application/xml")
+    @ResponseBody 
+    public Boolean deleteService(@PathVariable("id") int id) {
+        return serviceManager.deleteService(new Service(id, null, null));     
+    }
+    
+    @RequestMapping(method = RequestMethod.POST, value = "/service", headers = "Accept=application/json,application/xml")
+    @ResponseBody 
+    public Service createService(@RequestBody Service service) {
+        if(!service.isValid()){
+            return null;
+        }
+        return serviceManager.createService(service);
+    }
+    
+    @RequestMapping(method = RequestMethod.PUT, value = "/service/{id}", headers = "Accept=application/json,application/xml")
+    @ResponseBody 
+    public Service updateService(@PathVariable("id") int id, @RequestBody Service service) {
+        if(!service.isValid()){
+            return null;
+        }
+        return serviceManager.updateService(new Service(id, service.getName(), service.getUrl())); 
+    }
+    
     @RequestMapping(method = RequestMethod.GET, value = "/transformations", headers = "Accept=application/json,application/xml")
     @ResponseBody 
     public TransformationList getTransformations() {
@@ -79,7 +105,7 @@ public class RESTController {
         Transformation transformation = transformationManager.findTransformationById(id);
         return transformation;
     }
-    
+       
     @RequestMapping(method = RequestMethod.GET, value = "/projects", headers = "Accept=application/json,application/xml")
     @ResponseBody 
     public ProjectList getProjects() {

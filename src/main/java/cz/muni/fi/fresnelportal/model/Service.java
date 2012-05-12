@@ -5,6 +5,7 @@
 package cz.muni.fi.fresnelportal.model;
 
 import javax.xml.bind.annotation.XmlRootElement;
+import org.apache.commons.validator.UrlValidator;
 
 /**
  *
@@ -47,6 +48,12 @@ public class Service {
 
     public void setUrl(String url) {
         this.url = url;
+    }
+    
+    // change this in Spring 3.1.1 with @Valid annotation
+    public boolean isValid(){
+        UrlValidator urlValidator = new UrlValidator();
+        return name != null && url != null && !name.equals("") && urlValidator.isValid(url);
     }
     
     @Override

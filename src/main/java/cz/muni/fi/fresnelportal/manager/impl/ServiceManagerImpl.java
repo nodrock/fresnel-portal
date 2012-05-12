@@ -59,7 +59,7 @@ public class ServiceManagerImpl implements ServiceManager {
     }
     
     @Override
-    public Service updateUser(Service service) {
+    public Service updateService(Service service) {
         if (service == null) {
             throw new IllegalArgumentException("service");
         }
