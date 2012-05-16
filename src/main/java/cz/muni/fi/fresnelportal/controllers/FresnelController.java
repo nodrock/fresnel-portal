@@ -258,6 +258,15 @@ public class FresnelController {
         }
         fd = (FresnelDocument) attribute;
         Group group = fd.getGroup(selectedGroup);
+        if(group == null){
+            String groupToRenderLocalName = FresnelPortalUtils.getLastPart(selectedGroup);
+            for(Group g : fd.getGroups()){
+                if(FresnelPortalUtils.getLastPart(g.getURI()).equals(groupToRenderLocalName)){
+                    group = g;
+                    break;
+                }
+            }
+        }
         List<String> lensURIs = new ArrayList<String>();
         for (Lens lens : group.getLenses()) {
             lensURIs.add(lens.getURI());
