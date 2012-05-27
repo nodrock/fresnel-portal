@@ -83,7 +83,7 @@ public class TransformationsController {
         }else{
             Transformation transformation = transformationManager.findTransformationById(transformationId);
             if(transformation == null){
-                addMessage(session, new Message(Message.ERROR, "Transformation with this id NOT exist!"));
+                addMessage(session, new Message(Message.ERROR, "no_transformation"));
                 return "redirect:/transformations/transformations.htm"; 
             }else{
                 model.addAttribute("transformation", transformation);
@@ -99,7 +99,7 @@ public class TransformationsController {
         
         Transformation transformation = transformationManager.findTransformationById(transformationId);
         if(transformation == null){
-            addMessage(session, new Message(Message.ERROR, "No transformation with this id exist!"));
+            addMessage(session, new Message(Message.ERROR, "no_transformation"));
             return "redirect:/transformations/transformations.htm";   
         }
         
@@ -120,18 +120,18 @@ public class TransformationsController {
         String transformationsPath = request.getSession().getServletContext().getRealPath("/WEB-INF/transformations/");
         
         if(transformation == null){
-            addMessage(session, new Message(Message.ERROR, "No transformation!"));
+            addMessage(session, new Message(Message.ERROR, "wrong_transformation"));
             return "redirect:/transformations/transformations.htm";   
         }
         
         boolean valid = true;
         if(transformation.getName().equals("") || transformation.getContentType().equals("")){
-            addMessage(session, new Message(Message.ERROR, "All fields are required!"));
+            addMessage(session, new Message(Message.ERROR, "all_fields_required"));
             valid = false; 
         }
         
         if(file.isEmpty()){
-            addMessage(session, new Message(Message.ERROR, "No file to upload!"));
+            addMessage(session, new Message(Message.ERROR, "no_file_to_upload"));
             valid = false; 
         }
         
@@ -152,7 +152,7 @@ public class TransformationsController {
                 bytes = file.getBytes();
             } catch (IOException ex) {
                 logger.log(Level.SEVERE, null, ex);
-                addMessage(session, new Message(Message.ERROR, "Problem with uploaded file!"));
+                addMessage(session, new Message(Message.ERROR, "uploading_problem"));
                 return "redirect:/transformations/transformations.htm";   
             }
             // gets name of original file
@@ -176,11 +176,11 @@ public class TransformationsController {
                 fos.close();
             } catch (FileNotFoundException ex) {
                 logger.log(Level.SEVERE, null, ex);
-                addMessage(session, new Message(Message.ERROR, "Can't open output file on server!"));
+                addMessage(session, new Message(Message.ERROR, "cant_open_output_file"));
                 return "redirect:/transformations/transformations.htm";   
             } catch (IOException ex) {
                 logger.log(Level.SEVERE, null, ex);
-                addMessage(session, new Message(Message.ERROR, "Can't write to output file on server!"));
+                addMessage(session, new Message(Message.ERROR, "cant_write_output_file"));
                 return "redirect:/transformations/transformations.htm";   
             }
 
@@ -188,7 +188,7 @@ public class TransformationsController {
             Transformation trans = transformationManager.createTransformation(new Transformation(null, transformation.getName(), name, transformation.getContentType()));
             if (trans == null) {
                 saveFile.delete();
-                addMessage(session, new Message(Message.ERROR, "Can't create transformation!"));
+                addMessage(session, new Message(Message.ERROR, "creating_transformation_failed"));
                 return "redirect:/transformations/transformations.htm";  
             }
             

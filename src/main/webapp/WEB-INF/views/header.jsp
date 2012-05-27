@@ -67,7 +67,7 @@
                                                             <div class="${message.type}">
                                                                 <div class="tl"></div><div class="tr"></div>
                                                                 <div class="desc">
-                                                                    <p><c:out value="${message.text}"/></p>
+                                                                    <p><fmt:message key="${message.text}"/></p>
                                                                 </div>
                                                                 <div class="bl"></div><div class="br"></div>
                                                             </div>

@@ -23,8 +23,6 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.SessionAttributes;
-import org.springframework.web.servlet.ModelAndView;
 
 /**
  *
@@ -80,7 +78,7 @@ public class ServicesController {
         }else{
             Service service = serviceManager.findServiceById(serviceId);
             if(service == null){
-                addMessage(session, new Message(Message.ERROR, "Service with this id NOT exist!"));
+                addMessage(session, new Message(Message.ERROR, "no_service"));
                 return "redirect:/services/services.htm"; 
             }else{
                 model.addAttribute("service", service);
@@ -96,7 +94,7 @@ public class ServicesController {
         
         Service service = serviceManager.findServiceById(serviceId);
         if(service == null){
-            addMessage(session, new Message(Message.ERROR, "No service with this id exist!"));
+            addMessage(session, new Message(Message.ERROR, "no_service"));
             return "redirect:/services/services.htm";      
         }
         
@@ -108,19 +106,19 @@ public class ServicesController {
     @RequestMapping(value = "/services/saveService.htm", method = RequestMethod.POST)
     public String handleServiceSave(@ModelAttribute("service") Service service, Model model, HttpSession session) {        
         if(service == null){
-            addMessage(session, new Message(Message.ERROR, "No service!"));
+            addMessage(session, new Message(Message.ERROR, "wrong_service"));
             return "redirect:/services/services.htm";    
         }
         
         boolean valid = true;
         if(service.getName().equals("") || service.getUrl().equals("")){
-            addMessage(session, new Message(Message.ERROR, "All fields are required!"));
+            addMessage(session, new Message(Message.ERROR, "all_fields_required"));
             valid = false; 
         }
         
         UrlValidator urlValidator = new UrlValidator();
         if(!urlValidator.isValid(service.getUrl())){
-            addMessage(session, new Message(Message.ERROR, "Url is NOT valid!"));
+            addMessage(session, new Message(Message.ERROR, "url_not_valid"));
             valid = false;             
         }
         
