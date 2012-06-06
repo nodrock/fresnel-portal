@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package cz.muni.fi.fresnelportal.controllers;
 
 import com.hp.hpl.jena.rdf.model.ModelFactory;
@@ -64,7 +60,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.w3c.dom.Document;
 
 /**
- *
+ * Controller for handling web pages of Project management
  * @author nodrock
  */
 @Controller

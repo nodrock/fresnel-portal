@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package cz.muni.fi.fresnelportal.controllers;
 
 import cz.muni.fi.fresnelportal.data.Message;
@@ -25,7 +21,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
 /**
- *
+ * Controller for handling web pages of Services management.
  * @author nodrock
  */
 @Controller

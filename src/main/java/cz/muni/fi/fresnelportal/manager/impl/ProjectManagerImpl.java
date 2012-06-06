@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package cz.muni.fi.fresnelportal.manager.impl;
 
 import com.hp.hpl.jena.rdf.model.Model;
@@ -30,7 +26,7 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 
 /**
- *
+ * Implementation of ProjectManager using Spring JdbcTemplate.
  * @author nodrock
  */
 public class ProjectManagerImpl implements ProjectManager {

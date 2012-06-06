@@ -5,7 +5,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
- *
+ * Wrapper object for proper JAXB handling of List.
  * @author nodrock
  */
 @XmlRootElement(name="transformations")

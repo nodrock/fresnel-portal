@@ -8,7 +8,7 @@ import cz.muni.fi.fresnelportal.model.Transformation;
 import java.util.Collection;
 
 /**
- *
+ * Manager for transformations.
  * @author nodrock
  */
 public interface TransformationManager {

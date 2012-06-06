@@ -1,13 +1,9 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package cz.muni.fi.fresnelportal.utils;
 
 import javax.servlet.http.HttpServletRequest;
 
 /**
- *
+ * Utils class for getting base URL.
  * @author nodrock
  */
 public class HttpUtils {

@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package cz.muni.fi.fresnelportal.utils;
 
 import com.hp.hpl.jena.rdf.model.Model;
@@ -27,7 +23,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 /**
- *
+ * Utils class for parsing information from N3 files and for replacing namespaces.
  * @author nodrock
  */
 public class FresnelPortalUtils {

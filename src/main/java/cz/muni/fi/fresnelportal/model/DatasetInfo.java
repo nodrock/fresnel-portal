@@ -1,11 +1,7 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package cz.muni.fi.fresnelportal.model;
 
 /**
- *
+ * Stores information parsed from N3 file.
  * @author nodrock
  */
 public class DatasetInfo {
