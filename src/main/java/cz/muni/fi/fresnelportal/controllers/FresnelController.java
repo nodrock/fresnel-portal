@@ -1,6 +1,7 @@
 package cz.muni.fi.fresnelportal.controllers;
 
 import com.hp.hpl.jena.rdf.model.ModelFactory;
+import cz.muni.fi.fresnelportal.FresnelPortalConstants;
 import cz.muni.fi.fresnelportal.data.Message;
 import cz.muni.fi.fresnelportal.manager.ProjectManager;
 import cz.muni.fi.fresnelportal.manager.ServiceManager;
@@ -206,6 +207,7 @@ public class FresnelController {
         }
 
         session.setAttribute("fresnelDocument", fresnelDocument);
+        session.setAttribute("project", project);
 
         Collection<Lens> lenses = fresnelDocument.getLenses();
         Collection<Format> formats = fresnelDocument.getFormats();
@@ -234,13 +236,17 @@ public class FresnelController {
             HttpServletRequest request, HttpServletResponse response) {
         String transformationsPath = request.getSession().getServletContext().getRealPath("/WEB-INF/transformations/");
 
+        Project project = null;
+        
         FresnelDocument fd;
         Object attribute = session.getAttribute("fresnelDocument");
 
         if (projectId != null) {
-            Project project = projectManager.findProjectById(projectId);
+            project = projectManager.findProjectById(projectId);
             String projectsPath = request.getSession().getServletContext().getRealPath("/WEB-INF/projects/");
             attribute = project.getFresnelDocument(projectsPath);
+        }else{
+            project = (Project)session.getAttribute("project");
         }
 
         if (attribute == null) {
@@ -334,6 +340,12 @@ public class FresnelController {
                 }
                 File transformationFile = new File(transformationsPath + File.separator + trans.getFilename());
                 transformer = tFactory.newTransformer(new StreamSource(transformationFile));
+                
+                String stylePath = HttpUtils.getBaseUrl(request) + "/resources/styles/";
+                
+                transformer.setParameter("pageTitle", project.getTitle());
+                transformer.setParameter("cssStylesheetURL", stylePath + FresnelPortalConstants.DEFAULT_XHTML_CSS);
+                
                 response.setContentType(trans.getContentType());
             }
 

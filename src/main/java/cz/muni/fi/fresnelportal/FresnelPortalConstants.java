@@ -13,4 +13,6 @@ public class FresnelPortalConstants {
     public static final String _title = "title";
     public static final String DCMITYPE_NAMESPACE_URI = "http://purl.org/dc/dcmitype/";
     public static final String _Dataset = DCMITYPE_NAMESPACE_URI + "Dataset";
+    
+    public static final String DEFAULT_XHTML_CSS = "default/visualization-test-default-style.css";
 }
