@@ -68,7 +68,7 @@
         <label for="selectedGroup" class="left">Select group:</label>
         <select id="selectedGroup" name="selectedGroup" class="w_40">
             <c:forEach items="${groups}" var="group">
-                <option value="${group.URI}" label="${group.URI}" />
+                <option value="${group.URI}" label="${group.URI}" >${group.URI}</option>
             </c:forEach>
         </select>
         <br /> 
@@ -77,9 +77,9 @@
         <label for="selectedService" class="left">Select service:</label>
 
         <select id="selectedService" name="selectedService" class="w_40">
-            <option value="0" label="Semantic Web Client" />
+            <option value="0" label="Semantic Web Client">Semantic Web Client</option>
             <c:forEach items="${services}" var="service">
-                <option value="${service.id}" label="${service.name}" />
+                <option value="${service.id}" label="${service.name}" >${service.name}</option>
             </c:forEach>
         </select>
         <br />
@@ -88,9 +88,9 @@
         <label for="selectedTransformation" class="left">Transformation:</label>
 
         <select id="selectedTransformation" name="selectedTransformation" class="w_40">
-            <option value="0" label="No transformation" />
+            <option value="0" label="No transformation">No transformation</option>
             <c:forEach items="${transformations}" var="transformation">
-                <option value="${transformation.id}" label="${transformation.name}" />
+                <option value="${transformation.id}" label="${transformation.name}" >${transformation.name}</option>
             </c:forEach>
         </select>
         <br />
